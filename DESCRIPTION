@@ -18,3 +18,4 @@ Imports: tidygraph,
     tidyr,
     tibble,
     purrr
+RoxygenNote: 6.0.1
