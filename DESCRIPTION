@@ -1,8 +1,13 @@
 Package: orgsurveyr
 Title: Visualising and Analysing Organisation Data As Tidy Networks
 Version: 0.0.1
-Authors@R: person("Phil", "Chapman", email = "phil.chapman@dwp.gsi.gov.uk", role = c("aut", "cre"))
-Description: Lightweight wrapper functions to facilitate the use of tidygraph and ggraph for the analysis and visualisation of organisation data
+Authors@R:  c(
+    person("Phil", "Chapman", email = "phil.chapman@dwp.gsi.gov.uk", role = c("aut", "cre")), 
+    person("Matthew", "Gregory", email = "matthew.gregory@digital.cabinet-office.gov.uk",
+    role = "ctb")
+    )
+Description: Lightweight wrapper functions to facilitate the use of tidygraph and ggraph for
+    the analysis and visualisation of organisation data.
 URL: https://github.com/ukgovdatascience/orgsurveyr
 BugReports: https://github.com/ukgovdatascience/orgsurveyr/issues
 Depends: R (>= 3.5.0)
