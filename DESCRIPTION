@@ -1,8 +1,10 @@
 Package: orgsurveyr
-Title: What the Package Does (one line, title case)
-Version: 0.0.0.9000
-Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+Title: Visualising and Analysing Organisation Data As Tidy Networks
+Version: 0.0.1
+Authors@R: person("Phil", "Chapman", email = "phil.chapman@dwp.gsi.gov.uk", role = c("aut", "cre"))
+Description: Lightweight wrapper functions to facilitate the use of tidygraph and ggraph for the analysis and visualisation of organisation data
+URL: https://github.com/ukgovdatascience/orgsurveyr
+BugReports: https://github.com/ukgovdatascience/orgsurveyr/issues
 Depends: R (>= 3.5.0)
 License: MIT + file LICENSE
 Encoding: UTF-8
@@ -10,3 +12,9 @@ LazyData: true
 Suggests: knitr,
     rmarkdown
 VignetteBuilder: knitr
+Imports: tidygraph,
+    ggraph,
+    dplyr,
+    tidyr,
+    tibble,
+    purrr
