@@ -10,7 +10,7 @@ Lightweight wrapper for \pkg{ggraph} and \pkg{tidygraph} providing vignettes
 and convenience functions for the analysis of organisational data.
 }
 \details{
-To open the vignette type \code{vignette("Overview")}
+To look at the package vignettes type \code{ browseVignettes('orgsurveyr')}
 }
 \author{
 Phil Chapman <phil.chapman@dwp.gsi.gov.uk>

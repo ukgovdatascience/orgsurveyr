@@ -12,13 +12,16 @@ vignette: >
 ```{r setup, include = FALSE, message=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.width=5.5,
+  fig.height=4
 )
 library(tidygraph, quietly = TRUE)
 library(ggraph, quietly = TRUE)
 library(tibble, quietly = TRUE)
 library(purrr, quietly = TRUE)
 library(dplyr, quietly = TRUE)
+library(orgsurveyr, quietly = TRUE)
 ```
 
 # Introduction
@@ -56,7 +59,7 @@ The tidygraph object can be accessed with familiar tidyverse syntax, using the `
 tg %>% activate(edges) %>% as_tibble()
 ```
 
-A number of useful functions exist for calculating over and manipulating the network, and these can be combined with the conventional tidyverse verbs such as `mutate` and `filter`.  For example to calculate the depth within the network of each node:
+A number of useful functions exist for calculating over and manipulating the network, and these can be combined with the conventional tidyverse verbs such as `mutate` and `filter`.  For example to calculate the depth within the network of each node we can use the `bfs_dist` function:
 
 ```{r}
 tg <- tg %>%
@@ -99,7 +102,13 @@ ggraph(regular_org, 'dendrogram') + geom_edge_diagonal() +
   geom_node_point(shape=21, size=2, fill='white') + theme_bw() 
 ```
 
-The `orgsurvey::create_regular_org` function provides a wrapper around this approach (TO DO).
+The `orgsurvey::create_regular_org` function provides a wrapper around this approach:
+
+```{r}
+create_regular_org(n_children=5, max_depth=2) %>%
+  ggraph('dendrogram') + geom_edge_diagonal() + 
+  geom_node_point(shape=21, size=2, fill='white') + theme_bw() 
+```
 
 ### Plotting larger organisations
 
@@ -109,3 +118,65 @@ For larger organisations, a circular dendrograph is better as it gives more spac
 ggraph(regular_org, 'dendrogram', circular=TRUE) + geom_edge_diagonal() + 
   geom_node_point(shape=21, size=2, fill='white') + theme_bw() 
 ```
+
+## Irregular organisations
+
+### General approach
+
+To create a more realistic and less regular, symmetrical organisation, there are two basic approaches: to either build the network up, or trim an existing network down.  In the `orgsurveyr` package the latter approach is taken.  The actions are:
+
+- Build a regular organisation
+- Randomly select units to delete
+- Propagate deletion status downwards through the organisation
+- Delete the unwanted units
+
+### Selecting nodes to delete
+
+To randomly select nodes for deletion, a new variable can be created in the nodes data frame that uses the `rbinom` function to assign a deletion status of true with a probability of 0.3.  Note that the `.N()` function is used to access the nodes data frame within a tidygraph object.
+
+```{r}
+set.seed(1234)
+tg_random_delete <- create_regular_org(4,2) %>%
+  mutate(branch_delete = rbinom(n=nrow(.N()), size=1, prob=0.3))
+
+ggraph(tg_random_delete, 'dendrogram', circular=FALSE) + geom_edge_diagonal() + 
+  geom_node_point(aes(fill=as.factor(branch_delete)), shape=21, size=4) + 
+  theme_bw() + guides(fill=guide_legend(title = 'Branch Delete'))
+```
+
+### Propagating deletion status through the organisation
+
+The next step is to assign all descendent nodes of a node marked as for deletion the same status.  This can be done as follows:
+
+```{r}
+tg_random_branch_delete <- tg_random_delete %>%
+  mutate(to_delete = tidygraph::map_bfs_dbl(1, .f = function(node, path, ...) {
+    max(.N()[c(node, path$node),]$branch_delete)
+  }))
+
+tg_random_branch_delete %>%
+  ggraph('dendrogram') + geom_edge_diagonal() +
+  geom_node_point(aes(fill=as.factor(to_delete)), shape=21, size=4)  + 
+  theme_bw() + guides(fill=guide_legend(title = 'To Delete'))
+```
+
+The `map_bfs_dbl` function allows us to access the nodes between the current node and the root node and identify whether any already have already been marked for deletion.  The effect can be seen in the plot, where all four of the leaf nodes in the right hand branch have now been marked for deletion.
+
+### Trimming nodes marked for deletion
+
+Deleting nodes is completed using familiar dplyr verbs:
+
+```{r}
+tg_random_branch_delete <- tg_random_branch_delete %>%
+  filter(to_delete != 1)
+
+#plot
+tg_random_branch_delete %>%
+  ggraph('dendrogram') + geom_edge_diagonal() +
+  geom_node_point(aes(fill=as.factor(to_delete)), shape=21, size=4) + 
+  theme_bw() + guides(fill=guide_legend(title = 'To Delete'))
+```
+
+### More complex trimming
+
+In the example above, any node was given the same chance of being deleted.  In reality we may wish to have a difference chance of a node being deleted depending on its depth in the organisation.  EXAMPLE BELOW.
