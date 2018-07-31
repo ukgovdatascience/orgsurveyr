@@ -179,4 +179,55 @@ tg_random_branch_delete %>%
 
 ### More complex trimming
 
-In the example above, any node was given the same chance of being deleted.  In reality we may wish to have a difference chance of a node being deleted depending on its depth in the organisation.  EXAMPLE BELOW.
+In the example above, any node was given the same chance of being deleted.  In reality we may wish to have a difference chance of a node being deleted depending on its depth in the organisation.  This can be achieved by first calculating the depth of the organisation using the `bfs_dist` function, and then either applying some function to this or joining another data frame with the required probabilities.  
+
+#### Trimming by a function of depth
+
+The first example demonstrates how simple function can be used to translate depth to likelihood of deletion.  Nodes to be deleted are highlighted in red.
+
+```{r}
+set.seed(1234)
+tg_trim_by_depth_function <- create_regular_org(4,3) %>%
+  mutate(depth = bfs_dist(1),
+         prob_deletion = 1-(8-depth)/8,
+         branch_delete = rbinom(nrow(.N()),1,prob_deletion),
+         to_delete = tidygraph::map_bfs_dbl(1, .f = function(node, path, ...) {
+            max(.N()[c(node, path$node),]$branch_delete)
+  }))
+
+tg_trim_by_depth_function
+
+tg_trim_by_depth_function %>%
+  ggraph('dendrogram', circular=TRUE) + geom_edge_diagonal() +
+  geom_node_point(aes(fill=prob_deletion, color=as.factor(to_delete)), 
+                  shape=21, size=4, stroke=1) + 
+  scale_color_manual(values=c('0'='black', '1'='red')) + 
+  theme_bw()
+
+
+```
+
+#### Trimming by exactly defined probabilities
+
+Second, join to a data frame containing the probabilities defined exactly
+
+```{r}
+set.seed(1234)
+tg_trim_by_depth_exact <- create_regular_org(4,3) %>%
+  mutate(depth = bfs_dist(1)) %>%
+  inner_join(data_frame(depth=0:4, 
+                        prob_deletion=c(0, 0.1, 0.2, 0.3, 0.4)), by='depth') %>%
+  mutate(branch_delete = rbinom(nrow(.N()),1,prob_deletion),
+         to_delete = tidygraph::map_bfs_dbl(1, .f = function(node, path, ...) {
+            max(.N()[c(node, path$node),]$branch_delete)
+  }))
+
+tg_trim_by_depth_exact
+
+tg_trim_by_depth_exact %>%
+  ggraph('dendrogram', circular=TRUE) + geom_edge_diagonal() +
+  geom_node_point(aes(fill=prob_deletion, color=as.factor(to_delete)), 
+                  shape=21, size=4, stroke=1) + 
+  scale_color_manual(values=c('0'='black', '1'='red')) + 
+  theme_bw()
+```
