@@ -1,16 +1,9 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-    ## 
-    ## Attaching package: 'tidygraph'
-
-    ## The following object is masked from 'package:stats':
-    ## 
-    ##     filter
-
 orgsurveyr
 ==========
 
-The goal of `orgsurveyr` is to facilitate the use of Tom Lin Pederson's excellent `tidygrap`h and `ggraph` packages with organisational information used by many Human Resources departments, in particular employee surveys.
+The goal of `orgsurveyr` is to facilitate the use of [Thomas Lin Pedersen's](https://www.data-imaginist.com) excellent [`tidygraph`](https://github.com/thomasp85/tidyraph) and [`ggraph`](https://github.com/thomasp85/ggraph) packages with organisational information used by many Human Resources departments, in particular employee surveys.
 
 Installation
 ------------
@@ -25,7 +18,7 @@ devtools::install_github("ukgovdatascience/orgsurveyr")
 Example
 -------
 
-An organisation is a very basic type of network known as a tree. The tidygraph package lets us simulate and represent a tree structure as follows:
+An organisation is a very basic type of network known as a tree. The [`tidygraph`](https://github.com/thomasp85/tidyraph) package lets us simulate and represent a tree structure as follows:
 
 ``` r
 tg <- tidygraph::create_tree(13,3) 
@@ -45,7 +38,7 @@ tg
 #> # ... with 9 more rows
 ```
 
-The `ggraph` package can be used to plot networks with the familiar `ggplot2` syntax. Below the simulated organisation is plotted as a dendrogram:
+The [`ggraph`](https://github.com/thomasp85/ggraph) package can be used to plot networks with the familiar [`ggplot2`](http://ggplot2.tidyverse.org) syntax. Below the simulated organisation is plotted as a dendrogram:
 
 ``` r
   ggraph(tg, 'dendrogram') + geom_edge_diagonal() + 
@@ -54,4 +47,11 @@ The `ggraph` package can be used to plot networks with the familiar `ggplot2` sy
 
 ![](README-example-2-1.png)
 
-The `orgsurveyr` provides detailed vignettes, convenience functions and example data to help HR analysts make use of the `ggraph` and `tidygraph` packages in the analysis of organisation data.
+The `orgsurveyr` package provides detailed vignettes, convenience functions and example data to help HR analysts make use of the [`ggraph`](https://github.com/thomasp85/ggraph) and [`tidygraph`](https://github.com/thomasp85/tidyraph) packages in the analysis of organisation data.
+
+Further reading/viewing
+=======================
+
+-   [Data Imaginist](https://www.data-imaginist.com) - Thomas Lin Pedersen's blog
+-   ['Tidying up your network analysis with tidygraph and ggraph'](https://www.rstudio.com/resources/videos/tidying-up-your-network-analysis-with-tidygraph-and-ggraph/): RStudio::conf presentation from Thomas Lin Pedersen
+-   [useR 2018 Interview with Thomas Lin Pedersen](https://user2018.r-project.org/blog/2018/04/18/interview-with-thomas-lin-pedersen/)
