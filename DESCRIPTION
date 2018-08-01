@@ -24,5 +24,6 @@ Imports:
     tidyr,
     tibble (>= 0.8.0),
     purrr (>= 0.2.0),
-    ggplot2 (>= 2.0.0)
+    ggplot2 (>= 2.0.0),
+    magrittr
 RoxygenNote: 6.0.1
