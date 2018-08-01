@@ -17,10 +17,12 @@ LazyData: true
 Suggests: knitr,
     rmarkdown
 VignetteBuilder: knitr
-Imports: tidygraph,
-    ggraph,
-    dplyr,
+Imports:
+    tidygraph (>= 1.0.0),
+    ggraph (>= 1.0.0),
+    dplyr (>= 0.7.0),
     tidyr,
-    tibble,
-    purrr
+    tibble (>= 0.8.0),
+    purrr (>= 0.2.0),
+    ggplot2 (>= 2.0.0)
 RoxygenNote: 6.0.1

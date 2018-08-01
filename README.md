@@ -45,7 +45,7 @@ The [`ggraph`](https://github.com/thomasp85/ggraph) package can be used to plot 
   geom_node_point(size=5) + theme_bw()
 ```
 
-![](README-example-2-1.png)
+![](man/figures/README-example-2-1.png)
 
 The `orgsurveyr` package provides detailed vignettes, convenience functions and example data to help HR analysts make use of the [`ggraph`](https://github.com/thomasp85/ggraph) and [`tidygraph`](https://github.com/thomasp85/tidyraph) packages in the analysis of organisation data.
 
