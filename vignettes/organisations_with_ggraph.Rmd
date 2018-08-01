@@ -1,65 +1,409 @@
 ---
-title: "Vignette Title"
-author: "Vignette Author"
+title: "Simulating Organisations With tidygraph and ggraph"
+author: "Phil Chapman"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{Simulating Organisations With tidygraph and ggraph}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include = FALSE}
+```{r setup, include = FALSE, message=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.width=5.5,
+  fig.height=4
 )
+library(tidygraph, quietly = TRUE)
+library(ggraph, quietly = TRUE)
+library(tibble, quietly = TRUE)
+library(purrr, quietly = TRUE)
+library(dplyr, quietly = TRUE)
+library(orgsurveyr, quietly = TRUE)
 ```
 
-Vignettes are long form documentation commonly included in packages. Because they are part of the distribution of the package, they need to be as compact as possible. The `html_vignette` output type provides a custom style sheet (and tweaks some options) to ensure that the resulting html is as small as possible. The `html_vignette` format:
+# Introduction
 
-- Never uses retina figures
-- Has a smaller default figure size
-- Uses a custom CSS stylesheet instead of the default Twitter Bootstrap style
+This vignette demonstrates the basic principles of how organisational data can be analysed and visualised using the `ggraph` and `tidygraph` packages.  Although the `orgsurveyr` package provides some convenience functions to facilitate this, it is deliberately kept lightweight with the intention that core `ggraph` and `tidygraph` functionality is used instead.  Having established the basic principles behind organisational data analyses, these convenience functions and classes are introduced.  
 
-## Vignette Info
+# Simulating The Organisation
 
-Note the various macros within the `vignette` section of the metadata block above. These are required in order to instruct R how to build the vignette. Note that you should change the `title` field and the `\VignetteIndexEntry` to match the title of your vignette.
+## Starting simple
 
-## Styles
+### Creating a simple organisation with tidygraph
 
-The `html_vignette` template includes a basic CSS theme. To override this theme you can specify your own CSS in the document metadata as follows:
+A simple tree representing an organisation with three teams, each with three sub-teams can be simulated with `tidygraph` as follows:  
 
-    output: 
-      rmarkdown::html_vignette:
-        css: mystyles.css
-
-## Figures
-
-The figure sizes have been customised so that you can easily put two images side-by-side. 
-
-```{r, fig.show='hold'}
-plot(1:10)
-plot(10:1)
+```{r}
+tg <- tidygraph::create_tree(n = 13, children = 3)
+tg
 ```
 
-You can enable figure captions by `fig_caption: yes` in YAML:
+The network object is two data frames, one for the nodes and another for the edges.  
 
-    output:
-      rmarkdown::html_vignette:
-        fig_caption: yes
+### Plotting the simple organisation as a dendrogram
 
-Then you can use the chunk option `fig.cap = "Your figure caption."` in **knitr**.
+The tidygraph object can be plotted as a dendrogram with `ggraph`:  
 
-## More Examples
-
-You can write math expressions, e.g. $Y = X\beta + \epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`.
-
-```{r, echo=FALSE, results='asis'}
-knitr::kable(head(mtcars, 10))
+```{r}
+ggraph(tg, 'dendrogram') + geom_edge_diagonal() + 
+  geom_node_point(shape = 21, size = 5, fill = 'white') + theme_bw() 
 ```
 
-Also a quote using `>`:
+### Manipulating the network with tidygraph
 
-> "He who gives up [code] safety for [code] speed deserves neither."
-([via](https://twitter.com/hadleywickham/status/504368538874703872))
+The tidygraph object can be accessed with familiar tidyverse syntax, using the `activate` verb to select either nodes or edges:  
+
+```{r}
+tg %>% activate(edges) %>% as_tibble()
+```
+
+A number of useful functions exist for calculating over and manipulating the network, and these can be combined with the conventional tidyverse verbs such as `mutate` and `filter`.  For example, to calculate the depth within the network of each node, we can use the `bfs_dist` function:  
+
+```{r}
+tg <- tg %>%
+  mutate(depth = tidygraph::bfs_dist(1))
+tg
+```
+
+Overlaying this new variable onto the network is as would be expected in any ggplot:
+
+```{r}
+ggraph(tg, 'dendrogram') + geom_edge_diagonal() + 
+  geom_node_point(aes(fill = depth), shape = 21, size = 5) + theme_bw() 
+```
+
+For more information about how `tidygraph` represents networks see [this blog post](https://www.data-imaginist.com/2017/introducing-tidygraph/).  
+
+## Larger organisations
+
+### Simulating a large organisation
+
+To create a larger organisation, we can modify the number of nodes in the tree and the maximum number of children per node.  
+
+```{r}
+bigger_org <- tidygraph::create_tree(n = 40, children = 4)
+ggraph(bigger_org, 'dendrogram') + geom_edge_diagonal() + 
+  geom_node_point(shape = 21, size = 2, fill = 'white') + theme_bw() 
+
+```
+
+### Simulating a symmetrical organisation
+
+To create a more symmetrical organisation, use the formula below:
+
+```{r}
+n_children <- 4
+max_depth <- 3
+regular_n <- sum(n_children^c(0:max_depth))
+regular_org <- tidygraph::create_tree(n = regular_n, children = n_children)
+ggraph(regular_org, 'dendrogram') + geom_edge_diagonal() + 
+  geom_node_point(shape = 21, size = 2, fill = 'white') + theme_bw() 
+```
+
+The `orgsurvey::create_regular_org` function provides a wrapper around this approach:
+
+```{r}
+create_regular_org(n_children = 5, max_depth = 2) %>%
+  ggraph('dendrogram') + geom_edge_diagonal() + 
+  geom_node_point(shape = 21, size = 2, fill = 'white') + theme_bw() 
+```
+
+### Plotting larger organisations
+
+For larger organisations, a circular dendrograph is preferred as it gives more space for the leaf nodes:
+
+```{r}
+ggraph(regular_org, 'dendrogram', circular = TRUE) + geom_edge_diagonal() + 
+  geom_node_point(shape = 21, size = 2, fill = 'white') + theme_bw() 
+```
+
+## Irregular organisations
+
+### General approach
+
+To create a more realistic and less regular, symmetrical organisation, there are two basic approaches: to either build the network up, or trim an existing network down.  In the `orgsurveyr` package the latter approach is taken.  The actions are:  
+
+- Build a regular organisation  
+- Randomly select units to delete  
+- Propagate deletion status downwards through the organisation  
+- Delete the unwanted units  
+
+### Selecting nodes to delete
+
+To randomly select nodes for deletion, a new variable can be created in the nodes data frame that uses the `rbinom` function to assign a deletion status of true with a probability of 0.3.  Note that the `.N()` function is used to access the nodes data frame within a tidygraph object.
+
+```{r}
+set.seed(1234)
+tg_random_delete <- create_regular_org(4,2) %>%
+  mutate(branch_delete = rbinom(n = nrow(.N()), size = 1, prob = 0.3))
+
+ggraph(tg_random_delete, 'dendrogram', circular = FALSE) + geom_edge_diagonal() + 
+  geom_node_point(aes(fill = as.factor(branch_delete)), shape = 21, size = 4) + 
+  theme_bw() + guides(fill = guide_legend(title = 'Branch Delete'))
+```
+
+### Propagating deletion status through the organisation
+
+The next step is to assign all descendent nodes of a node marked as for deletion the same status.  This can be done as follows:
+
+```{r}
+tg_random_branch_delete <- tg_random_delete %>%
+  mutate(to_delete = tidygraph::map_bfs_dbl(1, .f = function(node, path, ...) {
+    max(.N()[c(node, path$node),]$branch_delete)
+  }))
+
+tg_random_branch_delete %>%
+  ggraph('dendrogram') + geom_edge_diagonal() +
+  geom_node_point(aes(fill = as.factor(to_delete)), shape = 21, size = 4)  + 
+  theme_bw() + guides(fill = guide_legend(title = 'To Delete'))
+```
+
+The `map_bfs_dbl` function allows us to access the nodes between the current node and the root node and identify whether any already have already been marked for deletion.  The effect can be seen in the plot, where all four of the leaf nodes in the right hand branch have now been marked for deletion.
+
+### Trimming nodes marked for deletion
+
+Deleting nodes is completed using familiar dplyr verbs:
+
+```{r}
+tg_random_branch_delete <- tg_random_branch_delete %>%
+  filter(to_delete != 1)
+
+#plot
+tg_random_branch_delete %>%
+  ggraph('dendrogram') + geom_edge_diagonal() +
+  geom_node_point(aes(fill = as.factor(to_delete)), shape = 21, size = 4) + 
+  theme_bw() + guides(fill = guide_legend(title = 'To Delete'))
+```
+
+### More complex trimming
+
+In the example above, any node was given the same chance of being deleted.  In reality we may wish to have a difference chance of a node being deleted depending on its depth in the organisation.  This can be achieved by first calculating the depth of the organisation using the `bfs_dist` function, and then either applying some function to this or joining another data frame with the required probabilities.  
+
+#### Trimming by a function of depth
+
+The first example demonstrates how simple function can be used to translate depth to likelihood of deletion.  Nodes to be deleted are highlighted in red.
+
+```{r}
+set.seed(1234)
+tg_trim_by_depth_function <- create_regular_org(4, 3) %>%
+  mutate(depth = bfs_dist(1),
+         prob_deletion = 1 - (8 - depth) / 8,
+         branch_delete = rbinom(nrow(.N()), 1, prob_deletion),
+         to_delete = tidygraph::map_bfs_dbl(1, .f = function(node, path, ...) {
+            max(.N()[c(node, path$node), ]$branch_delete)
+  }))
+
+tg_trim_by_depth_function
+
+tg_trim_by_depth_function %>%
+  ggraph('dendrogram', circular = TRUE) + geom_edge_diagonal() +
+  geom_node_point(aes(fill = prob_deletion, color = as.factor(to_delete)), 
+                  shape = 21, size = 4, stroke = 1) + 
+  scale_color_manual(values = c('0' = 'black', '1' = 'red')) + 
+  theme_bw()
+
+
+```
+
+#### Trimming by exactly defined probabilities
+
+Second, join to a data frame containing the probabilities defined exactly.  
+
+```{r}
+set.seed(1234)
+tg_trim_by_depth_exact <- create_regular_org(4,3) %>%
+  mutate(depth = bfs_dist(1)) %>%
+  inner_join(data_frame(depth = 0:4, 
+                        prob_deletion = c(0, 0.1, 0.2, 0.3, 0.4)), by = 'depth') %>%
+  mutate(branch_delete = rbinom(nrow(.N()),1,prob_deletion),
+         to_delete = tidygraph::map_bfs_dbl(1, .f = function(node, path, ...) {
+            max(.N()[c(node, path$node),]$branch_delete)
+  }))
+
+tg_trim_by_depth_exact
+
+tg_trim_by_depth_exact %>%
+  ggraph('dendrogram', circular = TRUE) + geom_edge_diagonal() +
+  geom_node_point(aes(fill = prob_deletion, color = as.factor(to_delete)), 
+                  shape = 21, size = 4, stroke = 1) + 
+  scale_color_manual(values = c('0' = 'black', '1' = 'red')) + 
+  theme_bw()
+```
+
+#### Final complex organisation
+
+Either of the above networks can be trimmed and plotted as a reasonable simulation of an organisation:
+
+```{r}
+tg_complex <- tg_trim_by_depth_function %>%
+  filter(to_delete == 0)
+
+tg_complex %>%
+  ggraph('dendrogram', circular = TRUE) + geom_edge_diagonal() +
+  geom_node_point(shape = 21, size = 4, fill = 'white') + 
+  theme_bw()
+```
+
+# Simulate the people in the organisation
+
+## Introduction
+
+Having simulated the organisation, we now want to simulate the people within the organisation.  It's the people and what they are doing and saying that we are interested in after all!  
+
+## Simulate group sizes
+
+Organisational units within the organisation will have different numbers of people associated with them.  Generally, the leaf nodes will have more people, whereas nodes higher up the organisation will have fewer people directly associated with them.  This is because there will likely only be one manager and perhaps a secretary or a senior person with no further line management responsibility at a non-leaf node.  The leaf nodes, by contrast, will have a number of people with no further line management responsibilities associated with them.  
+
+### Define a function to simulate group size
+
+Since we don't want all organisational units to have the same number of people associated with them, let's define a function to simulate the size of the group whether it is a leaf node or not:  
+
+```{r}
+sim_group_size <- function(is_leaf_node) {
+  if (is_leaf_node) {
+    ceiling(rbeta(1, 10, 40) * 20)
+  } else {
+    sample(1:3, 1)
+  }
+}
+```
+
+If the group is a leaf node, then the group size will be simulated from the beta distribution, whereas if it isn't then it will be a number between 1 and 3.
+
+### Test the function for simulating group size 
+
+Let's simulate 10000 groups and see how they are distributed, using the `purrr::map` function to apply our function 10,000 times:  
+
+```{r}
+set.seed(1337)
+
+data_frame(status = rbinom(10000, 1, 0.5)) %>%
+  mutate(x = purrr::map_dbl(status, sim_group_size)) %>%
+  ggplot(aes(x)) + geom_bar() + facet_wrap(~as.factor(status)) + theme_bw()
+```
+
+### Simulate group sizes for the network
+
+The `sim_group_size` function can be applied to the nodes data frame in the `tbl_graph` object as if it were a data frame:
+
+```{r}
+tg_group_size <- tg_complex %>%
+  mutate(unit_id = dplyr::row_number(),
+         is_leaf = node_is_leaf(),
+         unit_size = purrr::map_dbl(is_leaf, sim_group_size))
+
+tg_group_size
+```
+
+To visualise the group sizes, we can plot them as node labels:
+
+```{r}
+tg_group_size %>%
+  ggraph('dendrogram', circular = TRUE) + geom_edge_diagonal() +
+  geom_node_point(shape = 21, size = 6, fill = 'white') +
+  geom_node_text(aes(label = unit_size)) + 
+  theme_bw()
+```
+
+## Simulate the people data
+
+### Simulating individual level variables
+
+Now that we have determined how many people should be in each group, we can simulate them.  Essentially we need a new data frame with one row per person, rather than one row per organisational unit.  There are a variety of ways of doing this, the below example uses `purrr::map` and `tidyr::unnest` to simulate an individual level variable with mean of 10 and standard deviation of 3:
+
+```{r}
+tg_individuals_df <- tg_group_size %>%
+  activate(nodes) %>%
+  as_tibble() %>%
+  dplyr::select(unit_id, unit_size, depth, is_leaf) %>%
+  dplyr::mutate(var1 = purrr::map(unit_size, ~rnorm(., mean=10, sd=3))) %>%
+  tidyr::unnest()
+tg_individuals_df
+```
+
+### Calculating group means for the simulated variable
+
+To plot the individual level data on the network plot, we first summarise it as the group level and then join it back into the nodes data frame of the network:
+
+```{r}
+#now calculate means and put info back into network plot
+tg_var1_df <- tg_individuals_df %>%
+  group_by(unit_id) %>%
+  summarise(var1 = mean(var1))
+
+#merge in summarised data
+tg_var1 <- tg_group_size %>%
+  inner_join(tg_var1_df, by = 'unit_id')
+tg_var1
+
+#plot as a network
+tg_var1 %>%
+  ggraph('dendrogram', circular = TRUE) + geom_edge_diagonal() +
+  geom_node_point(aes(fill = var1), shape = 21, size = 4) 
+```
+
+### Calculating cumulative means for the simulated variable
+
+#### Introduction to cumulative means
+
+Often we don't necessarily want to know the mean for just the people directly associated with an organisational unit, but the mean for all people associated with the current unit _and its children_.  
+
+#### Deriving a new group:individual mapping
+
+What is required is a data frame that maps each unit with all of the units below it in the hierarchy.  This can be achieved using the functionality of the `tidygraph::map_bfs_back` function in a similar way to how we propagated deletion status through the tree:
+
+```{r}
+tg_expanded_df <- tg_group_size %>%
+  mutate(child_id = tidygraph::map_bfs_back(unit_id, .f = function(node, path, ...) {
+    .N()[c(node, path$node),]$unit_id
+  })) %>%
+  activate(nodes) %>%
+  as_tibble() %>%
+  dplyr::transmute(parent_id = unit_id, unit_id = child_id) %>%
+  tidyr::unnest() %>%
+  arrange(parent_id)
+tg_expanded_df
+```
+
+### Calculating cumulative variables
+
+We now need to join our individuals data frame with the cumulative mapping data frame, calculate our cumulative variables and then join the result back into the tidygraph object.
+
+First calculate the cumulative variables:
+
+```{r}
+tg_cumulative_df <- tg_expanded_df %>%
+  inner_join(tg_individuals_df, by = 'unit_id') %>%
+  group_by(parent_id) %>%
+  summarise(cumulative_group_size = n(),
+            cumulative_var1_mean = mean(var1))
+tg_cumulative_df
+```
+
+### Merge cumulative variables back into the network
+
+Now merge back into the network object:
+
+```{r}
+tg_cumulative <- tg_var1 %>%
+  select(unit_id, depth, is_leaf, unit_size, var1) %>%
+  inner_join(tg_cumulative_df, by = c('unit_id' = 'parent_id')) 
+tg_cumulative
+```
+
+And finally plot - coloured by cumulative mean of the simulated variable, and labelled by cumulative unit size:
+
+```{r}
+tg_cumulative %>%
+  ggraph('dendrogram', circular = TRUE) + geom_edge_diagonal() +
+  geom_node_point(aes(fill = cumulative_var1_mean), shape = 21, size = 6) +
+  geom_node_text(aes(label = cumulative_group_size), color = 'white', size = 3) +
+  theme_bw()
+```
+
+# Conclusion
+
+In this analysis we have simulated basic organisations, made them more complex by trimming, and then simulated individual level data which we have summarised both at immediate group level and cumulative group level. Simulation of more complex variables is possible, for example introducing group level effects or adding additional structure into the organisation.  
