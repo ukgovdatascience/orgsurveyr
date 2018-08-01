@@ -12,7 +12,7 @@ You can install orgsurveyr from github with:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("ukgovdatascience/orgsurveyr")
+devtools::install_github("ukgovdatascience/orgsurveyr", build_vignettes = TRUE)
 ```
 
 Example
