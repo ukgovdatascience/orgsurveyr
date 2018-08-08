@@ -19,12 +19,34 @@
 #'
 #' @examples
 #' set.seed(1234)
-#' tg1 <- create_realistic_org(4,3, prob=0.3)
-#' tg1
+#' tg1a <- create_realistic_org(4,3, prob=0.3)
+#' tg1a
+#'
+#' \dontrun{
+#' plot_org(tg1a, fill_var='depth')
+#' }
 #'
 #' set.seed(1234)
-#' tg2 <- create_realistic_org(4,3, prob=c(0.2, 0.4, 0.6))
-#' tg2
+#' tg1b <- create_realistic_org(4,3, prob=0.3, delete_units=FALSE)
+#' tg1b
+#'
+#' \dontrun{
+#' plot_org(tg1b, fill_var='to_delete')
+#' }
+#'
+#' set.seed(1234)
+#' tg2a <- create_realistic_org(4,3, prob=c(0.2, 0.4, 0.6))
+#' tg2a
+#' \dontrun{
+#' plot_org(tg2a, fill_var='depth')
+#' }
+#'
+#' set.seed(1234)
+#' tg2b <- create_realistic_org(4,3, prob=c(0.2, 0.4, 0.6), delete_units=FALSE)
+#' tg2b
+#' \dontrun{
+#' plot_org(tg2b, fill_var='to_delete')
+#' }
 create_realistic_org <- function(n_children = 4, max_depth = 3, prob=0.3, .f=NULL, delete_units=TRUE) {
 
   stopifnot(length(prob) %in% c(1, max_depth))

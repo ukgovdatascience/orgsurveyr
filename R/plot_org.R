@@ -12,6 +12,7 @@
 #' @param is_circular whether to make the dendrogram circular which is useful for larger organisations (logical)
 #'
 #' @return ggraph object
+#' @import ggraph
 #' @export
 #'
 #' @examples

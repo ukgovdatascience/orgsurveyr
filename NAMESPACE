@@ -3,4 +3,5 @@
 export(create_realistic_org)
 export(create_regular_org)
 export(plot_org)
+import(ggraph)
 importFrom(magrittr,"%>%")
