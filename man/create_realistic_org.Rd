@@ -5,18 +5,21 @@
 \title{Create a realistic organisation}
 \usage{
 create_realistic_org(n_children = 4, max_depth = 3, prob = 0.3,
-  .f = NULL, keep_creation_vars = FALSE)
+  .f = NULL, delete_units = TRUE)
 }
 \arguments{
-\item{n_children}{integer}
+\item{n_children}{number of child units per parent unit (integer)}
 
-\item{max_depth}{integer}
+\item{max_depth}{integer maximum depth of organisation (integer)}
 
-\item{prob}{double or vector of doubles}
+\item{prob}{probability that a unit is deleted to create an irregular organisation.
+If a vector is provided that is the same length as max_depth then a different probability can be assigned to different
+levels of the organisation (double or vector of doubles)}
 
-\item{.f}{function of x}
+\item{.f}{function of depth that generates probability that a unit is removed (NOT IMPLEMENTED) (function of x)}
 
-\item{keep_creation_vars}{logical}
+\item{delete_units}{retains intermediate variables and doesn't delete units - useful to understand how the function
+is working (logical)}
 }
 \value{
 tidygraph object
@@ -27,9 +30,11 @@ a maximum depth, but where units are then randomly removed according to probabil
 a single value for all units, a value per unit depth or a user defined function of depth.
 }
 \examples{
+set.seed(1234)
 tg1 <- create_realistic_org(4,3, prob=0.3)
 tg1
 
+set.seed(1234)
 tg2 <- create_realistic_org(4,3, prob=c(0.2, 0.4, 0.6))
 tg2
 }
