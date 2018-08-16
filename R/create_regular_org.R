@@ -12,6 +12,10 @@
 #' @examples
 create_regular_org <- function(n_children=4, max_depth=3) {
 
+  stopifnot(is.numeric(n_children), is.numeric(max_depth))
+  stopifnot(n_children %% 1 == 0, max_depth %% 1 == 0)
+  stopifnot(n_children > 0, max_depth > 0)
+
   regular_n <- sum(n_children^c(0:max_depth))
   tidygraph::create_tree(n = regular_n, children = n_children)
 

@@ -18,6 +18,13 @@ test_that("create_regular_org generates expected output", {
 
 test_that("create_regular_org input parameter error handling works", {
 
+  expect_error(create_regular_org(n_children = 'x', max_depth = 3), "is.numeric")
+  expect_error(create_regular_org(n_children = 2, max_depth = 'x'), "is.numeric")
+  expect_error(create_regular_org(n_children = 2.2, max_depth = 3), "n_children%%1")
+  expect_error(create_regular_org(n_children = 2, max_depth = 3.2), "max_depth%%1")
+  expect_error(create_regular_org(n_children = -2, max_depth = 3), "n_children > 0")
+  expect_error(create_regular_org(n_children = 2, max_depth = -3), "max_depth > 0")
+
 })
 
 test_that("create_realistic_org generates expected output", {
