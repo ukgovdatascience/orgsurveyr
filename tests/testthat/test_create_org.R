@@ -16,3 +16,38 @@ test_that("create_regular_org generates expected output", {
 
 })
 
+test_that("create_regular_org input parameter error handling works", {
+
+})
+
+test_that("create_realistic_org generates expected output", {
+
+  set.seed(1235)
+  real_tg1 <- create_realistic_org(n_children = 5, max_depth = 3, prob = 0.4, delete_units = TRUE)
+
+  # number of nodes total
+  # number of nodes in a given depth
+  # number of columns in nodes table
+
+  set.seed(1235)
+  real_tg2 <- create_realistic_org(n_children = 5, max_depth = 3, prob = 0.4, delete_units = FALSE)
+
+  # number of nodes total
+  # number of nodes in a given depth
+  # number of columns in nodes table
+
+
+  set.seed(1235)
+  real_tg3 <- create_realistic_org(n_children = 4, max_depth = 3, prob = c(0.1, 0.2, 0.3), delete_units = TRUE)
+
+  # number of nodes total
+  # number of nodes in a given depth
+  # number of columns in nodes table
+
+
+})
+
+
+test_that("create_realistic_org input parameter error handling works", {
+
+})
