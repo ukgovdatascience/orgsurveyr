@@ -49,6 +49,10 @@
 #' }
 create_realistic_org <- function(n_children = 4, max_depth = 3, prob=0.3, .f=NULL, delete_units=TRUE) {
 
+  stopifnot(is.numeric(prob))
+  if (min(prob >= 0) == 0 | min(prob <= 1) == 0) {
+    stop('prob must be between 0 and 1, or a vector of values between 0 and 1')
+  }
   stopifnot(length(prob) %in% c(1, max_depth))
   if(!is.null(.f)) stop('Use of function to define deletion probability not implemented yet')
   stopifnot(is.logical(delete_units))
