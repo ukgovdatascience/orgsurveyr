@@ -23,9 +23,12 @@
 #' plot_org(tg, is_circular=TRUE)
 #' }
 
-plot_org <- function(x, fill_var='depth', is_circular=FALSE) {
+plot_org <- function(x, fill_var = 'depth', is_circular = FALSE) {
 
-  ggraph(x, 'dendrogram', circular=is_circular) + geom_edge_diagonal() +
-    geom_node_point(aes_string(fill=fill_var), shape=21, size=5) + theme_bw()
+  ggraph::ggraph(x, 'dendrogram', circular = is_circular) +
+    ggraph::geom_edge_diagonal() +
+    geom_node_point(ggplot2::aes_string(fill = fill_var),
+                    shape = 21, size = 5) +
+    ggplot2::theme_bw()
 
 }
