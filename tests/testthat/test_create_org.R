@@ -73,4 +73,17 @@ test_that("create_realistic_org generates expected output", {
 
 test_that("create_realistic_org input parameter error handling works", {
 
+  expect_error(create_realistic_org(n_children = 4, max_depth = 3, prob='x', .f=NULL, delete_units=TRUE),
+               "is.numeric")
+  expect_error(create_realistic_org(n_children = 4, max_depth = 3, prob=1.1, .f=NULL, delete_units=TRUE),
+               "prob must be between 0 and 1")
+  expect_error(create_realistic_org(n_children = 4, max_depth = 3, prob=c(0.3, 1.1), .f=NULL, delete_units=TRUE),
+               "prob must be between 0 and 1")
+  expect_error(create_realistic_org(n_children = 4, max_depth = 3, prob=c(-0.3, 0.9), .f=NULL, delete_units=TRUE),
+               "prob must be between 0 and 1")
+  expect_error(create_realistic_org(n_children = 4, max_depth = 3, prob=c(0.3, 0.9), .f=NULL, delete_units=TRUE),
+               "length")
+  expect_error(create_realistic_org(n_children = 4, max_depth = 3, prob=.3, .f=NULL, delete_units=3),
+               "is.logical")
+
 })
