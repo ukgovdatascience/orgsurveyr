@@ -9,9 +9,6 @@ check_tbl_graph_is_org(x)
 \arguments{
 \item{x}{}
 }
-\value{
-logical
-}
 \description{
 Verify that a tbl_graph has the right features to be an organisation
 }
@@ -22,10 +19,14 @@ library(tidygraph)
 set.seed(1234)
 tg1 <- create_realistic_org()
 check_tbl_graph_is_org(tg1)
-# returns TRUE
+# returns no errors
 
 tg2 <- tidygraph::create_star(30)
 check_tbl_graph_is_org(tg2)
-# returns FALSE
+# returns an error
+
+tg3 <- filter(tg1, unit_id != 1)
+check_tbl_graph_is_org(tg3)
+# returns a warning that the tree is no longer rooted
 
 }
