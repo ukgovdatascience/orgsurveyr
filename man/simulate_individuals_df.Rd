@@ -14,7 +14,7 @@ tibble
 }
 \description{
 Given an organisation tbl_graph object with the unit_size column defined, a tibble will be generated
-with one row per individual in the organisation.  For test purposes a dummy variable is also generated
+with one row per individual in the organisation.  For test purposes a dummy variable is also generated.
 }
 \examples{
 set.seed(1234)
