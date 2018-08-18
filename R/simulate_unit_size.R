@@ -35,7 +35,7 @@ simulate_unit_size <- function(x) {
 # helper function to generate the size of an org unit
 .generate_unit_size <- function(is_leaf_node) {
   if (is_leaf_node) {
-    ceiling(rbeta(1, 10, 40)*20)
+    ceiling(stats::rbeta(1, 10, 40)*20)
   } else {
     sample(1:3, 1)
   }

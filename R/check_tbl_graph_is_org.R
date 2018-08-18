@@ -2,7 +2,7 @@
 #'
 #' Verify that a tbl_graph has the right features to be an organisation
 #'
-#' @param x
+#' @param x an object to check
 #'
 #' @export
 #'
@@ -16,8 +16,10 @@
 #' # returns no errors
 #'
 #' tg2 <- tidygraph::create_star(30)
+#' \dontrun{
 #' check_tbl_graph_is_org(tg2)
 #' # returns an error
+#' }
 #'
 #' tg3 <- filter(tg1, unit_id != 1)
 #' check_tbl_graph_is_org(tg3)
