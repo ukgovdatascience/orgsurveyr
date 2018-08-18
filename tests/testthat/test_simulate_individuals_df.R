@@ -27,6 +27,13 @@ test_that("simulate_individuals_df generates expected output", {
 
 test_that("simulate_individuals_df input parameter error handling works", {
 
+  # derived from check_tbl_graph_is_org
+  expect_error(simulate_unit_size(1), "x is not a tbl_graph")
+  expect_error(simulate_unit_size(create_star(20)), "x is not a tree")
+  expect_warning(tg_ex1 %>% filter(unit_id != 1) %>% simulate_unit_size(), 'x is not a rooted tree')
+
+  # check error message when unit_size not present
+  expect_error(simulate_individuals_df(tg_ex1), 'Need to generate unit size first')
 
 
 })
