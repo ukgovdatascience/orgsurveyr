@@ -2,17 +2,30 @@
 % Please edit documentation in R/simulate_unit_size.R
 \name{simulate_unit_size}
 \alias{simulate_unit_size}
-\title{Simulate unit sizes within an organisation}
+\title{Simulate unit sizes for an organisation}
 \usage{
 simulate_unit_size(x)
 }
 \arguments{
 \item{x}{a tbl_graph object representing an organisation}
 }
+\value{
+tbl_graph
+}
 \description{
 Function which takes a tbl_graph object representing an organisation and generates a number representing
-the number of individuals immediately associated each unit.
+the number of individuals immediately associated with each unit.  This number is stored as the `unit_size` variable
+in the nodes tibble of the tbl_graph object.
 }
 \examples{
-NULL
+set.seed(1234)
+tg_ex1 <- create_realistic_org(n_children = 4, max_depth = 3, prob=0.3)
+tg_ex1 <- simulate_unit_size(tg_ex1)
+
+\dontrun{
+set.seed(1234)
+create_realistic_org(n_children = 4, max_depth = 3, prob=0.3) \%>\%
+   simulate_unit_size() \%>\%
+   plot_org() + geom_node_text(aes(label=unit_size), color='white')
+}
 }
