@@ -26,7 +26,6 @@ simulate_unit_size <- function(x) {
 
   x %>%
     dplyr::mutate(
-      unit_id = dplyr::row_number(),
       is_leaf = tidygraph::node_is_leaf(),
       unit_size = purrr::map_dbl(is_leaf, .generate_unit_size)
     )
