@@ -3,6 +3,7 @@
 export(create_realistic_org)
 export(create_regular_org)
 export(plot_org)
+export(simulate_unit_size)
 import(ggplot2)
 import(ggraph)
 importFrom(magrittr,"%>%")
