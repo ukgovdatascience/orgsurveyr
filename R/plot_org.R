@@ -25,6 +25,8 @@
 
 plot_org <- function(x, fill_var = 'depth', is_circular = FALSE) {
 
+  stopifnot(check_tbl_graph_is_org(x))
+
   ggraph(x, 'dendrogram', circular = is_circular) +
     geom_edge_diagonal() +
     geom_node_point(aes_string(fill = fill_var),

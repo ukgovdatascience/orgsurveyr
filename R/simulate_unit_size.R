@@ -22,6 +22,8 @@
 #'}
 simulate_unit_size <- function(x) {
 
+  stopifnot(check_tbl_graph_is_org(x))
+
   x %>%
     dplyr::mutate(
       unit_id = dplyr::row_number(),
