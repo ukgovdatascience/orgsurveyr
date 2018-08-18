@@ -63,14 +63,14 @@ create_realistic_org <- function(n_children = 4, max_depth = 3, prob=0.3, .f=NUL
     prob_df <- tibble::data_frame(depth=0:max_depth, prob_deletion=c(0,prob))
   } else if (is.function(.f)) {
     prob_df <- tibble::data_frame(depth=0:max_depth) %>%
-      mutate(prob_deletion = .f(depth))
+      dplyr::mutate(prob_deletion = .f(depth))
   }
 
   out <- create_regular_org(n_children, max_depth) %>%
     tidygraph::mutate(unit_id = dplyr::row_number(),
                       depth = tidygraph::bfs_dist(1)) %>%
     tidygraph::inner_join(prob_df, by='depth') %>%
-    tidygraph::mutate(branch_delete = rbinom(nrow(tidygraph::.N()), 1, prob_deletion),
+    tidygraph::mutate(branch_delete = stats::rbinom(nrow(tidygraph::.N()), 1, prob_deletion),
                       to_delete = tidygraph::map_bfs_dbl(1, .f = function(node, path, ...) {
                         max(tidygraph::.N()[c(node, path$node),]$branch_delete)
                       }))
