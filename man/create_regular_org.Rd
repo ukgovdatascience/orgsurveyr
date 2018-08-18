@@ -18,3 +18,12 @@ tidygraph object
 Create an organisation where each unit has a specified number of child units up until
 a maximum depth.
 }
+\examples{
+set.seed(1234)
+tg1a <- create_regular_org(n_children=4, max_depth=3)
+tg1a
+
+\dontrun{
+plot_org(tg1a, fill_var=NULL)
+}
+}

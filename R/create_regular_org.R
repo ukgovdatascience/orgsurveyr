@@ -10,6 +10,13 @@
 #' @export
 #'
 #' @examples
+#' set.seed(1234)
+#' tg1a <- create_regular_org(n_children=4, max_depth=3)
+#' tg1a
+#'
+#' \dontrun{
+#' plot_org(tg1a, fill_var=NULL)
+#' }
 create_regular_org <- function(n_children=4, max_depth=3) {
 
   stopifnot(is.numeric(n_children), is.numeric(max_depth))
