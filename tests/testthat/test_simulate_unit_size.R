@@ -28,6 +28,8 @@ test_that("simulate_unit_size generates expected output", {
 
 test_that("simulate_unit_size input parameter error handling works", {
 
-
+  expect_error(simulate_unit_size(1), "x is not a tbl_graph")
+  expect_error(simulate_unit_size(create_star(20)), "x is not a tree")
+  expect_warning(tg_ex1 %>% filter(unit_id != 1) %>% simulate_unit_size(), 'x is not a rooted tree')
 
 })
