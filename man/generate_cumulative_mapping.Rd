@@ -27,5 +27,20 @@ The output dataframe serves as a basis for calculating unit level summaries that
 affiliated to that unit.
 }
 \examples{
-NULL
+
+library(dplyr)
+set.seed(1234)
+tg_ex1 <- create_realistic_org(n_children = 4, max_depth = 3, prob=0.3)
+tg_ex1 <- simulate_unit_size(tg_ex1)
+df <- simulate_individuals_df(tg_ex1)
+
+map_df <- generate_cumulative_mapping(tg_ex1, df)
+map_df
+
+#use the map to calculate cumulative means
+df \%>\%
+inner_join(map_df, by='individual_id') \%>\%
+ group_by(parent_id) \%>\%
+ summarise(cum_test_var = mean(test_var),
+           cum_n = n())
 }
