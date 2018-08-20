@@ -32,7 +32,7 @@ generate_cumulative_mapping <- function(tg, df) {
   tg_expanded_df <- tg %>%
     tidygraph::activate(nodes) %>%
     tidygraph::mutate(child_id = tidygraph::map_bfs_back(dplyr::row_number(), .f = function(node, path, ...) {
-      .N()[c(node, path$node),]$unit_id
+      tidygraph::.N()[c(node, path$node),]$unit_id
     })) %>%
     tidygraph::as_tibble() %>%
     dplyr::select(unit_id, child_id) %>%
@@ -41,6 +41,6 @@ generate_cumulative_mapping <- function(tg, df) {
   #map individuals to child org units to generate dataframe with org unit + all descendent individuals
   tg_expanded_df %>%
     dplyr::inner_join(df, by=c('child_id' = 'unit_id')) %>%
-    dplyr::transmute(unit_id,individual_id)
+    dplyr::transmute(parent_id=unit_id, individual_id)
 
 }
