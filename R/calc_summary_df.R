@@ -16,7 +16,36 @@
 #' @export
 #'
 #' @examples
-#' NULL
+#' library(tidygraph)
+#' library(dplyr)
+#' set.seed(1231)
+#' tg1b <- create_realistic_org(4,3, prob=0.3, delete_units = TRUE) %>% simulate_unit_size
+#'
+#'\dontrun{
+#' plot_org(tg1b) + geom_node_text(aes(label=unit_size), color='white')
+#'}
+#' tg1b_indiv_df <- tg1b %>%
+#'   simulate_individuals_df() %>%
+#'   mutate(test_var2 = purrr::map_dbl(individual_id, ~rnorm(1, 20,3)))
+#' tg1b_indiv_df
+#'
+#' tg1b_indiv_tall_df <- tg1b_indiv_df %>%
+#'   select(individual_id, test_var, test_var2) %>%
+#'   tidyr::gather('metric_id', 'value', -individual_id)
+#' tg1b_indiv_tall_df
+#'
+#' # using wide data frame
+#' calc_summary_df(tg1b, tg1b_indiv_df, NULL, 'test_var2', is_cumulative=TRUE)
+#' calc_summary_df(tg1b, tg1b_indiv_df, NULL, c('test_var', 'test_var2'), is_cumulative=TRUE)
+#' calc_summary_df(tg1b, tg1b_indiv_df, NULL, 'test_var2', is_cumulative=FALSE)
+#' calc_summary_df(tg1b, tg1b_indiv_df, NULL, c('test_var', 'test_var2'), is_cumulative=FALSE)
+#'
+#' # using tall data frame
+#' calc_summary_df(tg1b, tg1b_indiv_df, tg1b_indiv_tall_df, 'test_var2', is_cumulative=TRUE)
+#' calc_summary_df(tg1b, tg1b_indiv_df, tg1b_indiv_tall_df, c('test_var', 'test_var2'), is_cumulative=TRUE)
+#' calc_summary_df(tg1b, tg1b_indiv_df, tg1b_indiv_tall_df, 'test_var2', is_cumulative=FALSE)
+#' calc_summary_df(tg1b, tg1b_indiv_df, tg1b_indiv_tall_df, c('test_var', 'test_var2'), is_cumulative=FALSE)
+
 calc_summary_df <- function(tg, df, tall_df=NULL, selected_vars, is_cumulative=FALSE) {
 
   # determine whether data frame is tall or wide
