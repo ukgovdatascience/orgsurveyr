@@ -1,3 +1,22 @@
+#' Calculate summary metrics on an organisation
+#'
+#' @description
+#' Given individual level variables and an organisation structure, this function calculates aggregated
+#' metrics using either the cumulative approach (all individuals in that unit or its descendents) or the orthodox
+#' approach (individuals immediately associated with that unit only).
+#'
+#' @param tg tbl_graph that passes a check with check_tbl_graph_is_org
+#' @param df a data frame with columns named unit_id and invididual_id and
+#'  (and optionally individual level variables) with one row per individual
+#' @param tall_df a data frame with columns named individual id, metric_id and value with multiple rows per individual
+#' @param selected_vars names of variables in df or tall_df (character vector)
+#' @param is_cumulative whether to calculate cumulative or orthodox aggregations (logical)
+#'
+#' @return A tall data frame with three columns: unit_id, metric_id and value.
+#' @export
+#'
+#' @examples
+#' NULL
 calc_summary_df <- function(tg, df, tall_df=NULL, selected_vars, is_cumulative=FALSE) {
 
   # determine whether data frame is tall or wide
