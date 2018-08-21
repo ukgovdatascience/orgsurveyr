@@ -1,0 +1,35 @@
+context("Simulate unit size")
+
+library(dplyr)
+library(tidygraph)
+
+set.seed(1234)
+tg_ex1 <- create_realistic_org(n_children = 4, max_depth = 3, prob=0.3) %>%
+  simulate_unit_size()
+
+test_that("simulate_unit_size generates expected output", {
+
+  expect_is(tg_ex1, 'tbl_graph')
+
+  tg_ex1_nodes <- tg_ex1 %>% activate(nodes) %>% as_tibble()
+  tg_ex1_edges <- tg_ex1 %>% activate(edges) %>% as_tibble()
+
+  # number of edges and nodes
+  expect_equal(nrow(tg_ex1_edges), 41)
+  expect_equal(nrow(tg_ex1_nodes), 42)
+
+  # number of columns in nodes table
+  expect_equal(ncol(tg_ex1_nodes), 4)
+
+  # check values of unit size generated
+  expect_equal(tg_ex1_nodes %>% select(unit_size) %>% slice(1:5) %>% unlist() %>% unname(), c(3, 2, 1, 1, 3))
+
+})
+
+test_that("simulate_unit_size input parameter error handling works", {
+
+  expect_error(simulate_unit_size(1), "x is not a tbl_graph")
+  expect_error(simulate_unit_size(create_star(20)), "x is not a tree")
+  expect_warning(tg_ex1 %>% filter(unit_id != 1) %>% simulate_unit_size(), 'x is not a rooted tree')
+
+})
