@@ -80,6 +80,7 @@ calc_summary_df <- function(tg, df, tall_df=NULL, selected_vars, is_cumulative=F
 
   clean_df %>%
     dplyr::group_by(unit_id, metric_id) %>%
-    dplyr::summarise_at('value', mean)
+    dplyr::summarise_at('value', mean) %>%
+    ungroup()
 
 }
