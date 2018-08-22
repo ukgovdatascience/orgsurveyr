@@ -48,8 +48,18 @@ test_that("calc_summary_df generates expected output", {
   purrr::walk(test_output$output, ~ expect_is(., 'tbl'))
 
   # number of rows and columns in output tables
+  expect_equal(nrow(t1), 29)
+  expect_equal(ncol(t1), 3)
+  expect_equal(colnames(t1), c('unit_id', 'metric_id', 'value'))
+
+  purrr::walk(test_output$output, ~ expect_equal(ncol(.), 3))
+  purrr::walk(test_output$output, ~ expect_equal(colnames(.), c('unit_id', 'metric_id', 'value')))
+  expect_equal(purrr::map_dbl(test_output$output, nrow), c(29, 29, 58, 58, 29, 29, 58, 58))
 
   # check values for each table generated
+  expect_equal(t1$value[1:6], c(19.6247378317358, 20.3542107587949, 19.0223275134199, 19.482988347118,
+                                20.4853179279958, 19.1934190306043))
+  ## could store expected output df and compare here
 
 })
 
