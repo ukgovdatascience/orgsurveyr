@@ -19,11 +19,37 @@
 #' @export
 #'
 #' @examples
+#' library(tidygraph)
+#' library(dplyr)
+#' library(ggraph)
+#'
+#' set.seed(1236)
+#' tg2 <- create_realistic_org(4,3, prob=0.3, delete_units = TRUE) %>%
+#'    simulate_unit_size
+#' tg2
+#'
+#' # plot the organisation using the depth of the unit in the organisation as fill colour
 #' \dontrun{
-#' set.seed(1234)
-#' tg <- create_realistic_org()
-#' plot_org(tg)
-#' plot_org(tg, is_circular=TRUE)
+#' plot_org(tg2, fill_var='depth') #normal dendrogram
+#' plot_org(tg2, fill_var='depth', is_circular=TRUE) #circular dendrogram
+#'
+#' # build on ggraph object using ggraph functionality - ie add unit sizes
+#' plot_org(tg2, fill_var='depth') + geom_node_text(aes(label=unit_size), color='white')
+#' }
+#'
+#' # can also include aggregated unit information from calc_summary_df
+#'
+#' # simulate individual data and summarise
+#' tg2_indiv_df <- tg2 %>%
+#'    simulate_individuals_df() %>%
+#'    mutate(test_var2 = purrr::map_dbl(individual_id, ~rnorm(1, 20,3)))
+#'
+#' summary_df <- calc_summary_df(tg2, tg2_indiv_df, NULL, c('test_var', 'test_var2'), TRUE)
+#'
+#' # plot the organisation using the cumulative mean of the individual variables
+#' \dontrun{
+#' plot_org(x=tg2, fill_var = 'test_var', df=summary_df)
+#' plot_org(x=tg2, fill_var = 'test_var2', df=summary_df)
 #' }
 
 plot_org <- function(x, fill_var = 'depth', df=NULL, is_circular = FALSE) {
