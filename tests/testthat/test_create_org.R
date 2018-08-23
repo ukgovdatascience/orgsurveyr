@@ -87,3 +87,27 @@ test_that("create_realistic_org input parameter error handling works", {
                "is.logical")
 
 })
+
+
+# zero node graph tests ---------------------------------------------------
+zero_node_example <- function() {
+  set.seed(1232)
+  create_realistic_org(4,3, prob=0.5, delete_units = TRUE)
+}
+
+test_that("create_realistic_org handles empty graphs gracefully", {
+
+  expect_warning(tg0 <- zero_node_example(),
+                 "Simulated organisation has zero units")
+
+})
+
+test_that("check_tbl_graph_is_org handles empty graphs gracefully", {
+
+  tg0 <- suppressWarnings(zero_node_example())
+
+  expect_error(check_tbl_graph_is_org(tg0),
+                 "x has zero nodes")
+
+
+})
