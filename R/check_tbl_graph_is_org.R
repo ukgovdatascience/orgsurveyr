@@ -31,6 +31,12 @@ check_tbl_graph_is_org <- function(x) {
     stop('x is not a tbl_graph object')
   }
 
+  #check that the node count is not zero
+  if(magrittr::equals(x %>% tidygraph::activate(nodes) %>%
+                      tidygraph::as_tibble() %>% nrow(), 0)) {
+    stop('x has zero nodes')
+  }
+
   if(tidygraph::with_graph(x, tidygraph::graph_is_forest())) {
     warning('x is not a rooted tree - orgsurveyr may not work as intended')
   } else if (!tidygraph::with_graph(x, tidygraph::graph_is_tree())) {
