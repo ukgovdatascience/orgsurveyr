@@ -57,6 +57,9 @@ plot_org <- function(x, fill_var = 'depth', df=NULL, is_circular = FALSE) {
   check_tbl_graph_is_org(x)
 
   if(!is.null(df)) {
+
+    check_df_format(df, 'org_tall_df', dev_mode = TRUE)
+
     df_filtered <- df %>%
       dplyr::filter(metric_id == fill_var) %>%
       tidyr::spread(metric_id, value)
@@ -70,7 +73,8 @@ plot_org <- function(x, fill_var = 'depth', df=NULL, is_circular = FALSE) {
     tg <- x
   }
 
-  stopifnot(fill_var %in% (tg %>% activate(nodes) %>% as_tibble() %>% colnames()))
+  stopifnot(fill_var %in% (tg %>% tidygraph::activate(nodes) %>%
+                             tidygraph::as_tibble() %>% colnames()))
 
   ggraph(tg, 'dendrogram', circular = is_circular) +
     geom_edge_diagonal() +
