@@ -81,6 +81,12 @@ create_realistic_org <- function(n_children = 4, max_depth = 3, prob=0.3, .f=NUL
       tidygraph::select(unit_id, depth)
   }
 
+  #check that the node count is not zero
+  if(magrittr::equals(out %>% tidygraph::activate(nodes) %>%
+                      tidygraph::as_tibble() %>% nrow(), 0)) {
+    warning('Simulated organisation has zero units. Try again but set a lower prob value or use set.seed() prior to calling the function')
+  }
+
   return(out)
 
 }
