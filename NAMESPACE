@@ -3,6 +3,7 @@
 export(check_tbl_graph_is_org)
 export(create_realistic_org)
 export(create_regular_org)
+export(generate_cumulative_mapping)
 export(plot_org)
 export(simulate_individuals_df)
 export(simulate_unit_size)
