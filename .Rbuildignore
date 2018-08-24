@@ -3,3 +3,4 @@
 ^README\.Rmd$
 ^README-.*\.png$
 ^orgsurveyr.sublime*
+^data-raw$

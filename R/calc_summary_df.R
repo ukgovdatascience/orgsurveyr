@@ -7,8 +7,10 @@
 #'
 #' @param tg tbl_graph that passes a check with check_tbl_graph_is_org
 #' @param df a data frame with columns named unit_id and invididual_id and
-#'  (and optionally individual level variables) with one row per individual
-#' @param tall_df a data frame with columns named individual id, metric_id and value with multiple rows per individual
+#'  (and optionally individual level variables) with one row per individual - see the indiv_df format
+#'  in \code{\link{orgsurveyr-data-formats}}
+#' @param tall_df a data frame with columns named individual id, metric_id and value with
+#' multiple rows per individual - see the indiv_tall_df format in \code{\link{orgsurveyr-data-formats}}
 #' @param selected_vars names of variables in df or tall_df (character vector)
 #' @param is_cumulative whether to calculate cumulative or orthodox aggregations (logical)
 #'
@@ -50,7 +52,7 @@ calc_summary_df <- function(tg, df, tall_df=NULL, selected_vars, is_cumulative=F
 
   check_tbl_graph_is_org(tg)
 
-  message('data frame format checking not implemented yet - things may go wrong!')
+  check_df_format(df, 'indiv_df', dev_mode = TRUE)
 
   # determine whether data frame is tall or wide
   if (is.null(tall_df)) {
@@ -58,6 +60,7 @@ calc_summary_df <- function(tg, df, tall_df=NULL, selected_vars, is_cumulative=F
     df_format <- 'wide'
   } else {
     message('Using tall data frame format for individual variables')
+    check_df_format(tall_df, 'indiv_tall_df', dev_mode = TRUE)
     df_format <- 'tall'
   }
 

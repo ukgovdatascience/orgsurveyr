@@ -11,9 +11,11 @@ calc_summary_df(tg, df, tall_df = NULL, selected_vars,
 \item{tg}{tbl_graph that passes a check with check_tbl_graph_is_org}
 
 \item{df}{a data frame with columns named unit_id and invididual_id and
-(and optionally individual level variables) with one row per individual}
+(and optionally individual level variables) with one row per individual - see the indiv_df format
+in \code{\link{orgsurveyr-data-formats}}}
 
-\item{tall_df}{a data frame with columns named individual id, metric_id and value with multiple rows per individual}
+\item{tall_df}{a data frame with columns named individual id, metric_id and value with
+multiple rows per individual - see the indiv_tall_df format in \code{\link{orgsurveyr-data-formats}}}
 
 \item{selected_vars}{names of variables in df or tall_df (character vector)}
 
