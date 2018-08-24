@@ -22,10 +22,15 @@
 #' get_df_format(mtcars)
 get_df_format <- function(df) {
 
-  compare_df <- function(query_df, template_df, format_id) {
+  compare_df <- function(query_df, template_df, format_id, subset_ok = FALSE) {
     data(list=template_df)
     template_df_format <- purrr::map_chr(get(template_df), class)
     query_df_format <- purrr::map_chr(query_df, class)
+
+    # if we are happy for the template df to represent a subset of the columns in the query df
+    if(subset_ok & isTRUE(all(names(template_df_format) %in% names(query_df_format)))) {
+      query_df_format <- query_df_format[names(query_df_format) %in% names(template_df_format)]
+    }
 
     if(identical(template_df_format, query_df_format)) {
       return(format_id)
@@ -39,9 +44,9 @@ get_df_format <- function(df) {
 
   }
 
-  res <- c(compare_df(df, 'tg_org_indiv_df', 'indiv_df'),
-           compare_df(df, 'tg_org_indiv_tall_df', 'indiv_tall_df'),
-           compare_df(df, 'tg_org_summarised_df', 'org_tall_df'))
+  res <- c(compare_df(df, 'tg_org_indiv_minimal_df', 'indiv_df', TRUE),
+           compare_df(df, 'tg_org_indiv_tall_df', 'indiv_tall_df', FALSE),
+           compare_df(df, 'tg_org_summarised_df', 'org_tall_df', FALSE))
 
   if(is.null(res)) {
     return('unknown')
