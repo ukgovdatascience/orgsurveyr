@@ -11,7 +11,8 @@
 #' affiliated to that unit.
 #'
 #' @param tg tbl_graph that passes a check with check_tbl_graph_is_org
-#' @param df a data frame with columns named unit_id and invididual_id
+#' @param df a data frame with columns named unit_id and invididual_id - see see the indiv_df format
+#'  in \code{\link{orgsurveyr-data-formats}}
 #'
 #' @return tbl_df
 #' @export

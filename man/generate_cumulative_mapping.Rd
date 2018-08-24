@@ -9,7 +9,8 @@ generate_cumulative_mapping(tg, df)
 \arguments{
 \item{tg}{tbl_graph that passes a check with check_tbl_graph_is_org}
 
-\item{df}{a data frame with columns named unit_id and invididual_id}
+\item{df}{a data frame with columns named unit_id and invididual_id - see see the indiv_df format
+in \code{\link{orgsurveyr-data-formats}}}
 }
 \value{
 tbl_df

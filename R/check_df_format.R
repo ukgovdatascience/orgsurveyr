@@ -30,7 +30,7 @@ check_df_format <- function(df, format=NULL, dev_mode=FALSE) {
   res <- identical(get_df_format(df), format)
 
   if(dev_mode & !res) {
-    stop(sprintf('data.frame should be in %s format, see ?data_formats', format))
+    stop(sprintf('data frame should be in %s format, see ?orgsurveyr-data-formats', format))
   }
 
   return(res)
