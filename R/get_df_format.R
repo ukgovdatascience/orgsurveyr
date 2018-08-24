@@ -12,6 +12,9 @@
 #' data(tg_org_indiv_df)
 #' get_df_format(tg_org_indiv_df)
 #'
+#' data(tg_org_indiv_minimal_df)
+#' get_df_format(tg_org_indiv_minimal_df)
+#'
 #' data(tg_org_indiv_tall_df)
 #' get_df_format(tg_org_indiv_tall_df)
 #'

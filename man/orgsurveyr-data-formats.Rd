@@ -23,6 +23,10 @@ tidygraph::as_tbl_graph(tg_org)
 data(tg_org_indiv_df)
 dplyr::tbl_df(tg_org_indiv_df)
 
+# minimal indiv_df example
+data(tg_org_indiv_minimal_df)
+dplyr::tbl_df(tg_org_indiv_minimal_df)
+
 # indiv_tall_df example
 data(tg_org_indiv_tall_df)
 dplyr::tbl_df(tg_org_indiv_tall_df)
