@@ -18,7 +18,7 @@ library(orgsurveyr, quietly = TRUE)
 
 # orgsurveyr
 
-The goal of `orgsurveyr` is to facilitate the use of [Thomas Lin Pedersen's](https://www.data-imaginist.com) excellent [`tidygraph`](https://github.com/thomasp85/tidyraph) and [`ggraph`](https://github.com/thomasp85/ggraph) packages with organisational information used by many Human Resources departments, in particular employee surveys.  
+The goal of `orgsurveyr` is to facilitate the use of [Thomas Lin Pedersen's](https://www.data-imaginist.com) excellent [`tidygraph`](https://github.com/thomasp85/tidygraph) and [`ggraph`](https://github.com/thomasp85/ggraph) packages with organisational information used by many Human Resources departments, in particular employee surveys.  
 
 ## Installation
 
@@ -31,7 +31,7 @@ devtools::install_github("ukgovdatascience/orgsurveyr", build_vignettes = TRUE)
 
 ## Example - ggraph/tidygraph
 
-An organisation is a very basic type of network known as a tree.  The [`tidygraph`](https://github.com/thomasp85/tidyraph) package lets us simulate and represent a tree structure as follows:
+An organisation is a very basic type of network known as a tree.  The [`tidygraph`](https://github.com/thomasp85/tidygraph) package lets us simulate and represent a tree structure as follows:
 
 ```{r example-1}
 tg <- tidygraph::create_tree(13,3) 
@@ -47,7 +47,7 @@ The [`ggraph`](https://github.com/thomasp85/ggraph) package can be used to plot 
 
 ## Example - orgsurveyr
 
-The `orgsurveyr` package provides detailed vignettes, convenience functions and example data to help HR analysts make use of the [`ggraph`](https://github.com/thomasp85/ggraph) and [`tidygraph`](https://github.com/thomasp85/tidyraph) packages in the analysis of organisation data.
+The `orgsurveyr` package provides detailed vignettes, convenience functions and example data to help HR analysts make use of the [`ggraph`](https://github.com/thomasp85/ggraph) and [`tidygraph`](https://github.com/thomasp85/tidygraph) packages in the analysis of organisation data.
 
 A realistic organisation can be simulated and plotted:
 

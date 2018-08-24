@@ -3,7 +3,7 @@
 orgsurveyr
 ==========
 
-The goal of `orgsurveyr` is to facilitate the use of [Thomas Lin Pedersen's](https://www.data-imaginist.com) excellent [`tidygraph`](https://github.com/thomasp85/tidyraph) and [`ggraph`](https://github.com/thomasp85/ggraph) packages with organisational information used by many Human Resources departments, in particular employee surveys.
+The goal of `orgsurveyr` is to facilitate the use of [Thomas Lin Pedersen's](https://www.data-imaginist.com) excellent [`tidygraph`](https://github.com/thomasp85/tidygraph) and [`ggraph`](https://github.com/thomasp85/ggraph) packages with organisational information used by many Human Resources departments, in particular employee surveys.
 
 Installation
 ------------
@@ -18,7 +18,7 @@ devtools::install_github("ukgovdatascience/orgsurveyr", build_vignettes = TRUE)
 Example - ggraph/tidygraph
 --------------------------
 
-An organisation is a very basic type of network known as a tree. The [`tidygraph`](https://github.com/thomasp85/tidyraph) package lets us simulate and represent a tree structure as follows:
+An organisation is a very basic type of network known as a tree. The [`tidygraph`](https://github.com/thomasp85/tidygraph) package lets us simulate and represent a tree structure as follows:
 
 ``` r
 tg <- tidygraph::create_tree(13,3) 
@@ -50,7 +50,7 @@ The [`ggraph`](https://github.com/thomasp85/ggraph) package can be used to plot 
 Example - orgsurveyr
 --------------------
 
-The `orgsurveyr` package provides detailed vignettes, convenience functions and example data to help HR analysts make use of the [`ggraph`](https://github.com/thomasp85/ggraph) and [`tidygraph`](https://github.com/thomasp85/tidyraph) packages in the analysis of organisation data.
+The `orgsurveyr` package provides detailed vignettes, convenience functions and example data to help HR analysts make use of the [`ggraph`](https://github.com/thomasp85/ggraph) and [`tidygraph`](https://github.com/thomasp85/tidygraph) packages in the analysis of organisation data.
 
 A realistic organisation can be simulated and plotted:
 
@@ -119,7 +119,6 @@ The individual data is aggregated at the unit level. This can be either be just 
 ``` r
 summary_df <- calc_summary_df(tg=tg3, df=tg3_individuals_df, 
                               selected_vars=c('test_var', 'test_var2'), is_cumulative=TRUE)
-#> data frame format checking not implemented yet - things may go wrong!
 #> Using wide data frame format for individual variables
 summary_df
 #> # A tibble: 76 x 3
