@@ -34,10 +34,10 @@ test_that("generate_cumulative_mapping input parameter error handling works", {
 
   # check error message when unit_id not present
   expect_error(generate_cumulative_mapping(tg_ex1, select(df, -unit_id)),
-               'df should have a unit_id and individual_id column')
+               'should be in indiv_df format')
 
   expect_error(generate_cumulative_mapping(tg_ex1, select(df, -individual_id)),
-               'df should have a unit_id and individual_id column')
+               'should be in indiv_df format')
 
 })
 

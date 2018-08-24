@@ -40,9 +40,7 @@ generate_cumulative_mapping <- function(tg, df) {
 
   #check df is a data frame with unit_id and individual_id columns
   stopifnot(inherits(df, 'data.frame'))
-  if (!('unit_id' %in% colnames(df) & 'individual_id' %in% colnames(df))) {
-    stop('df should have a unit_id and individual_id column')
-  }
+  check_df_format(df, 'indiv_df', dev_mode = TRUE)
 
   #expand org network into a dataframe of org units with all descendent org units
   tg_expanded_df <- tg %>%
