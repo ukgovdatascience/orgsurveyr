@@ -15,6 +15,11 @@ tg_org_indiv_df <- tg_org %>%
   mutate(test_var2 = purrr::map_dbl(individual_id, ~rnorm(1, 20,3)))
 devtools::use_data(tg_org_indiv_df, overwrite=TRUE)
 
+# minimal individuals data frame (1 row per individual)
+tg_org_indiv_minimal_df <- tg_org_indiv_df %>%
+  dplyr::select(individual_id, unit_id)
+devtools::use_data(tg_org_indiv_minimal_df, overwrite=TRUE)
+
 # tall invididuals data frame (multiple rows per individual)
 tg_org_indiv_tall_df <- tg_org_indiv_df %>%
   select(individual_id, test_var, test_var2) %>%
