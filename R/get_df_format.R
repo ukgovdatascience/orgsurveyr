@@ -26,7 +26,7 @@
 get_df_format <- function(df) {
 
   compare_df <- function(query_df, template_df, format_id, subset_ok = FALSE) {
-    data(list=template_df)
+    utils::data(list=template_df, envir = environment())
     template_df_format <- purrr::map_chr(get(template_df), class)
     query_df_format <- purrr::map_chr(query_df, class)
 

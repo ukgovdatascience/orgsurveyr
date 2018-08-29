@@ -49,14 +49,22 @@ tg1b_indiv_tall_df <- tg1b_indiv_df \%>\%
 tg1b_indiv_tall_df
 
 # using wide data frame
-calc_summary_df(tg1b, tg1b_indiv_df, NULL, 'test_var2', is_cumulative=TRUE)
-calc_summary_df(tg1b, tg1b_indiv_df, NULL, c('test_var', 'test_var2'), is_cumulative=TRUE)
-calc_summary_df(tg1b, tg1b_indiv_df, NULL, 'test_var2', is_cumulative=FALSE)
-calc_summary_df(tg1b, tg1b_indiv_df, NULL, c('test_var', 'test_var2'), is_cumulative=FALSE)
+calc_summary_df(tg1b, tg1b_indiv_df, NULL,
+                'test_var2', is_cumulative=TRUE)
+calc_summary_df(tg1b, tg1b_indiv_df, NULL,
+                c('test_var', 'test_var2'), is_cumulative=TRUE)
+calc_summary_df(tg1b, tg1b_indiv_df, NULL,
+               'test_var2', is_cumulative=FALSE)
+calc_summary_df(tg1b, tg1b_indiv_df, NULL,
+                c('test_var', 'test_var2'), is_cumulative=FALSE)
 
 # using tall data frame
-calc_summary_df(tg1b, tg1b_indiv_df, tg1b_indiv_tall_df, 'test_var2', is_cumulative=TRUE)
-calc_summary_df(tg1b, tg1b_indiv_df, tg1b_indiv_tall_df, c('test_var', 'test_var2'), is_cumulative=TRUE)
-calc_summary_df(tg1b, tg1b_indiv_df, tg1b_indiv_tall_df, 'test_var2', is_cumulative=FALSE)
-calc_summary_df(tg1b, tg1b_indiv_df, tg1b_indiv_tall_df, c('test_var', 'test_var2'), is_cumulative=FALSE)
+calc_summary_df(tg1b, tg1b_indiv_df, tg1b_indiv_tall_df,
+                'test_var2', is_cumulative=TRUE)
+calc_summary_df(tg1b, tg1b_indiv_df, tg1b_indiv_tall_df,
+                c('test_var', 'test_var2'), is_cumulative=TRUE)
+calc_summary_df(tg1b, tg1b_indiv_df, tg1b_indiv_tall_df,
+                'test_var2', is_cumulative=FALSE)
+calc_summary_df(tg1b, tg1b_indiv_df, tg1b_indiv_tall_df,
+                c('test_var', 'test_var2'), is_cumulative=FALSE)
 }
