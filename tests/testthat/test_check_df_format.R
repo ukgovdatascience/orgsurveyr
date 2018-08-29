@@ -52,3 +52,21 @@ test_that("check_df_format output is correct in dev_mode", {
 
 
 })
+
+test_that("functions that use check_df_format work correctly", {
+
+  #generate_cumulative_mapping
+  expect_error(generate_cumulative_mapping(tg_org, tg_org_indiv_tall_df),
+               'should be in indiv_df format')
+
+  #calc_summary_df
+  expect_error(calc_summary_df(tg_org, data_frame(), NULL, 'test_var'),
+               'should be in indiv_df format')
+  expect_error(calc_summary_df(tg_org, tg_org_indiv_df, data_frame(), 'test_var'),
+               'should be in indiv_tall_df format')
+
+  #plot_org
+  expect_error(plot_org(tg_org, df=data_frame()),
+               'should be in org_tall_df format')
+
+})
