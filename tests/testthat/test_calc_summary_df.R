@@ -65,4 +65,7 @@ test_that("calc_summary_df generates expected output", {
 
 test_that("calc_summary_df input parameter error handling works", {
 
+  # see test_check_tbl_graph_is_org for parameter checking of tbl_graph
+
+
 })
