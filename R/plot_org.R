@@ -56,16 +56,19 @@
 plot_org <- function(x, fill_var = 'depth', df=NULL, is_circular = FALSE) {
 
   check_tbl_graph_is_org(x)
+  stopifnot(is.character(fill_var))
+  stopifnot(is.logical(is_circular))
 
   if(!is.null(df)) {
 
+    stopifnot(inherits(df, 'data.frame'))
     check_df_format(df, 'org_tall_df', dev_mode = TRUE)
 
     df_filtered <- df %>%
       dplyr::filter(metric_id == fill_var) %>%
       tidyr::spread(metric_id, value)
 
-    stopifnot(nrow(df) > 0)
+    stopifnot(nrow(df_filtered) > 0)
 
     tg <- x %>%
       tidygraph::inner_join(df_filtered, by='unit_id')
