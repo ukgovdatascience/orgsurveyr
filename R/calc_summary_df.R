@@ -52,13 +52,18 @@ calc_summary_df <- function(tg, df, tall_df=NULL, selected_vars, is_cumulative=F
 
   check_tbl_graph_is_org(tg)
 
+  stopifnot(inherits(df, 'data.frame'))
   check_df_format(df, 'indiv_df', dev_mode = TRUE)
+
+  stopifnot(is.character(selected_vars))
+  stopifnot(is.logical(is_cumulative))
 
   # determine whether data frame is tall or wide
   if (is.null(tall_df)) {
     message('Using wide data frame format for individual variables')
     df_format <- 'wide'
   } else {
+    stopifnot(inherits(tall_df, 'data.frame'))
     message('Using tall data frame format for individual variables')
     check_df_format(tall_df, 'indiv_tall_df', dev_mode = TRUE)
     df_format <- 'tall'

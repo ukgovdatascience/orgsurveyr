@@ -67,5 +67,23 @@ test_that("calc_summary_df input parameter error handling works", {
 
   # see test_check_tbl_graph_is_org for parameter checking of tbl_graph
 
+  expect_error(calc_summary_df(tg1b, 1, NULL, 'test_var2', is_cumulative = TRUE),
+               'inherits')
+
+  expect_error(calc_summary_df(tg1b, data_frame(), NULL, 'test_var2', is_cumulative = TRUE),
+               'data frame should be in indiv_df format')
+
+  expect_error(calc_summary_df(tg1b, tg1b_indiv_df, 1, 'test_var2', is_cumulative = TRUE),
+               'inherits')
+
+  expect_error(calc_summary_df(tg1b, tg1b_indiv_df, data_frame(), 'test_var2', is_cumulative = TRUE),
+               'data frame should be in indiv_tall_df format')
+
+  expect_error(calc_summary_df(tg1b, tg1b_indiv_df, NULL, 1, is_cumulative = TRUE),
+               'character')
+
+  expect_error(calc_summary_df(tg1b, tg1b_indiv_df, NULL, 'test_var2', is_cumulative = 3),
+               'logical')
+
 
 })
