@@ -8,6 +8,13 @@ data("tg_org_indiv_tall_df")
 data("tg_org_summarised_df")
 data("mtcars")
 
+test_that('plot_org generates expected output', {
+
+  expect_is(plot_org(tg_org, fill_var = 'depth', df=NULL, is_circular = FALSE), 'ggplot')
+  expect_is(plot_org(tg_org, fill_var = 'test_var', df=tg_org_summarised_df, is_circular = FALSE), 'ggplot')
+  expect_is(plot_org(tg_org, fill_var = 'test_var', df=tg_org_summarised_df, is_circular = TRUE), 'ggplot')
+
+})
 
 test_that('plot_org input parameter error handling works',{
 
