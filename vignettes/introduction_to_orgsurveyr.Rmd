@@ -1,0 +1,85 @@
+---
+title: "Introduction To orgsurveyr"
+author: "Phil Chapman"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction To orgsurveyr}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+```{r setup, include = FALSE, message=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width=5.5,
+  fig.height=4
+)
+library(tidygraph, quietly = TRUE)
+library(ggraph, quietly = TRUE)
+library(tibble, quietly = TRUE)
+library(purrr, quietly = TRUE)
+library(dplyr, quietly = TRUE)
+library(orgsurveyr, quietly = TRUE)
+```
+
+# Introduction
+
+This vignette introduces the general functionality of the `orgsurveyr` package and how it can be used to analyse and visualise organisational data.  For a more detailed explanation of the `ggraph` and `tidygraph` packages are being used 'under the hood' please see the Organisations With ggraph vignette. 
+
+# Example
+
+## Simulating and plotting an organisation
+
+A realistic organisation can be simulated and plotted:
+
+```{r example-3}
+set.seed(1236)
+tg2 <- create_realistic_org(n_children = 4, max_depth = 3, prob=0.3)
+plot_org(tg2)
+```
+
+## Simulating individuals within an organisation
+
+Individual level data also be simulated first by simulating the number of individuals in unit:
+
+```{r example-4}
+tg3 <- simulate_unit_size(tg2)
+tg3
+```
+
+Followed by simulating the individuals and any additional variables.  The commands can be piped as per tidyverse convention:
+
+```{r example-5}
+tg3_individuals_df <- tg3 %>% 
+  simulate_individuals_df() %>%
+  mutate(test_var2 = purrr::map_dbl(individual_id, ~rnorm(1, 20,3)))
+tg3_individuals_df
+```
+
+## Summarising individual level data
+
+The individual data can be aggregated at the unit level.  This can be either be just those individuals associated with an organisational unit or (more usefully) a cumulative aggregation involving all individuals that are part of that unit and any units below it in the organisation:
+
+```{r example-6}
+summary_df <- calc_summary_df(tg=tg3, df=tg3_individuals_df, 
+                              selected_vars=c('test_var', 'test_var2'), is_cumulative=TRUE)
+summary_df
+```
+
+## Plotting aggregated data
+
+Finally the aggregated data can be plotted as a dendrogram:
+
+```{r example-7}
+plot_org(tg3, fill_var = 'test_var', df = summary_df)
+```
+
+# Further reading/viewing
+
+- [Data Imaginist](https://www.data-imaginist.com) - Thomas Lin Pedersen's blog
+- ['Tidying up your network analysis with tidygraph and ggraph'](https://www.rstudio.com/resources/videos/tidying-up-your-network-analysis-with-tidygraph-and-ggraph/): RStudio::conf presentation from Thomas Lin Pedersen
+- [useR 2018 Interview with Thomas Lin Pedersen](https://user2018.r-project.org/blog/2018/04/18/interview-with-thomas-lin-pedersen/)
+
