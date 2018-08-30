@@ -4,11 +4,18 @@
 \name{tg_org_summarised_df}
 \alias{tg_org_summarised_df}
 \title{Example org_tall_df data frame}
-\format{An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 76 rows and 3 columns.}
+\format{A data frame with 76 rows and 3 variables:
+\describe{
+ \item{unit_id}{The organisational unit}
+ \item{metric_id}{The name of the variable}
+ \item{value}{The value of the variable}
+ }}
 \usage{
 tg_org_summarised_df
 }
 \description{
-TO ADD
+An example of a data frame in the org_tall_df data frame format where
+an organisational unit is represented by multiple rows, and each row represents a
+different summarised variable.
 }
 \keyword{datasets}

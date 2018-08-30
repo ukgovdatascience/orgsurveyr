@@ -4,11 +4,20 @@
 \name{tg_org_indiv_df}
 \alias{tg_org_indiv_df}
 \title{Example indiv_df data frame}
-\format{An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 146 rows and 5 columns.}
+\format{A data frame with 146 rows and 5 variables:
+\describe{
+ \item{individual_id}{The ID of the individual}
+ \item{individual_name}{The name of the individual}
+ \item{unit_id}{The organisational unit to which the individual belongs}
+ \item{test_var}{A simulated variable}
+ \item{test_var2}{Another simulated variable}
+ }}
 \usage{
 tg_org_indiv_df
 }
 \description{
-TO ADD
+An example of the indiv_df data frame format where individual level data is
+represented as a single row per individual and multiple columns represent
+different variables.
 }
 \keyword{datasets}

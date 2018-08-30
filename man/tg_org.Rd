@@ -9,6 +9,7 @@
 tg_org
 }
 \description{
-TO ADD
+An organisation represented as a tidygraph tbl_graph object and generated
+by the create_realistic_org function.
 }
 \keyword{datasets}

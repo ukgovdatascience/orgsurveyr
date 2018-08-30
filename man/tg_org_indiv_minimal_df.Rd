@@ -4,11 +4,16 @@
 \name{tg_org_indiv_minimal_df}
 \alias{tg_org_indiv_minimal_df}
 \title{Example minimal indiv_df data frame}
-\format{An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 146 rows and 2 columns.}
+\format{A data frame with 146 rows and 2 variables:
+\describe{
+ \item{individual_id}{The ID of the individual}
+ \item{unit_id}{The organisational unit to which the individual belongs}
+ }}
 \usage{
 tg_org_indiv_minimal_df
 }
 \description{
-TO ADD
+An example of the minimal indiv_df data frame format with just the columns necessary to allow
+individuals to be mapped to their organisational units.
 }
 \keyword{datasets}

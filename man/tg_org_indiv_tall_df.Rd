@@ -4,11 +4,18 @@
 \name{tg_org_indiv_tall_df}
 \alias{tg_org_indiv_tall_df}
 \title{Example indiv_tall_df data frame}
-\format{An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 292 rows and 3 columns.}
+\format{A data frame with 292 rows and 3 variables:
+\describe{
+ \item{individual_id}{The ID of the individual}
+ \item{metric_id}{The name of the variable}
+ \item{value}{The value of the variable}
+ }}
 \usage{
 tg_org_indiv_tall_df
 }
 \description{
-TO ADD
+An example of a data frame in the indiv_tall_df data frame format where
+an individual is represented by multiple rows, and each row represents a
+different variable.
 }
 \keyword{datasets}
