@@ -1,0 +1,134 @@
+---
+title: "Introduction To orgsurveyr"
+author: "Phil Chapman"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction To orgsurveyr}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+```{r setup, include = FALSE, message=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width=5.5,
+  fig.height=4
+)
+library(tidygraph, quietly = TRUE)
+library(ggraph, quietly = TRUE)
+library(tibble, quietly = TRUE)
+library(purrr, quietly = TRUE)
+library(dplyr, quietly = TRUE)
+library(orgsurveyr, quietly = TRUE)
+```
+
+# Introduction
+
+This vignette introduces the general functionality of the `orgsurveyr` package and how it can be used to analyse and visualise organisational data.  For a more detailed explanation of the `ggraph` and `tidygraph` packages are being used 'under the hood' please see the [Organisations With ggraph vignette](organisations_with_ggraph.html). 
+
+# Example
+
+## Simulating and plotting an organisation
+
+A realistic organisation can be simulated and plotted:
+
+```{r example-3}
+set.seed(1236)
+tg2 <- create_realistic_org(n_children = 4, max_depth = 3, prob=0.3)
+plot_org(tg2)
+```
+
+## Organisation data structure
+
+The `orgsurveyr` package uses the `tidygraph` and `ggraph` packages under the hood to provide functionality for HR analysts to easily analyse organisational data.  The organisation simulated above is a `tbl_graph` object:
+
+```{r}
+tg2
+```
+
+This is made up of two data frames, one for the *nodes* (organisational units) and another for the *edges* (the connections between the units).  Importantly, note that the from/to columns in the edge data relate to the row number of the node and NOT the value of the unit_id column.
+
+Although the convenience `plot_org` function is provided, users are advised to explore the full functionality of the `ggraph` package for their plots. 
+
+## Simulating individuals within an organisation
+
+Individual level data also be simulated first by simulating the number of individuals in unit:
+
+```{r example-4}
+tg3 <- simulate_unit_size(tg2)
+tg3
+```
+
+Followed by simulating the individuals and any additional variables.  The commands can be piped as per tidyverse convention:
+
+```{r example-5}
+tg3_individuals_df <- tg3 %>% 
+  simulate_individuals_df() %>%
+  mutate(test_var2 = purrr::map_dbl(individual_id, ~rnorm(1, 20,3)))
+tg3_individuals_df
+```
+
+## Summarising individual level data
+
+The individual data can be aggregated at the unit level.  This can be either be just those individuals associated with an organisational unit or (more usefully) a cumulative aggregation involving all individuals that are part of that unit and any units below it in the organisation:
+
+```{r example-6}
+summary_df <- calc_summary_df(tg=tg3, df=tg3_individuals_df, 
+                              selected_vars=c('test_var', 'test_var2'), is_cumulative=TRUE)
+summary_df
+```
+
+If the `is_cumulative` flag is set to `FALSE` then the raw individual to unit mappings are used from the individual data:
+
+```{r}
+tg3_individuals_df %>%
+  select(unit_id, individual_id) %>%
+  count(unit_id)
+```
+
+If the `is_cumulative` flag is set to `TRUE` then the raw individual to unit mappings are generated from the  `generate_cumulative_mapping` function leading to much higher group sizes:
+
+```{r}
+generate_cumulative_mapping(tg3, tg3_individuals_df) %>%
+  count(parent_id)
+```
+
+## Plotting aggregated data
+
+Finally the aggregated data can be plotted as a dendrogram:
+
+```{r example-7}
+plot_org(tg3, fill_var = 'test_var', df = summary_df)
+```
+
+Or some other representation, such as a starburst plot, using generic `tidygraph` and `ggraph` functionality:
+
+```{r}
+plot_data <- tg3_individuals_df %>% 
+  inner_join(generate_cumulative_mapping(tg3, tg3_individuals_df), by='individual_id') %>%
+  group_by(parent_id) %>%
+  summarise(test_var = mean(test_var), 
+            cumulative_group_size = n()) 
+
+plot_tg <- tg3 %>%
+  activate(nodes) %>%
+  inner_join(plot_data, by=c('unit_id'='parent_id'))
+
+ggraph(plot_tg, 'partition', circular = TRUE) + 
+  geom_node_arc_bar(aes(fill = test_var), size = 0.25) +
+  geom_node_text(aes(label = cumulative_group_size), color = 'white', size = 3) + 
+  theme_bw()
+```
+
+
+
+# Further reading/viewing
+
+- [Organisations With ggraph vignette](organisations_with_ggraph.html)
+- [Data Imaginist](https://www.data-imaginist.com) - Thomas Lin Pedersen's blog
+- ['Tidying up your network analysis with tidygraph and ggraph'](https://www.rstudio.com/resources/videos/tidying-up-your-network-analysis-with-tidygraph-and-ggraph/): RStudio::conf presentation from Thomas Lin Pedersen
+- [useR 2018 Interview with Thomas Lin Pedersen](https://user2018.r-project.org/blog/2018/04/18/interview-with-thomas-lin-pedersen/)
+

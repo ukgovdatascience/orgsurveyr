@@ -24,20 +24,17 @@ test_that("generate_cumulative_mapping generates expected output", {
 
 test_that("generate_cumulative_mapping input parameter error handling works", {
 
-  # derived from check_tbl_graph_is_org
-  expect_error(generate_cumulative_mapping(1, df), "x is not a tbl_graph")
-  expect_error(generate_cumulative_mapping(create_star(20), df), "x is not a tree")
-  expect_warning(tg_ex1 %>% filter(unit_id != 1) %>% generate_cumulative_mapping(., df), 'x is not a rooted tree')
+  # see test_check_tbl_graph_is_org for parameter checking of tbl_graph
 
   # check error message when df is not a data frame
   expect_error(generate_cumulative_mapping(tg_ex1, 1), "inherits")
 
   # check error message when unit_id not present
   expect_error(generate_cumulative_mapping(tg_ex1, select(df, -unit_id)),
-               'df should have a unit_id and individual_id column')
+               'should be in indiv_df format')
 
   expect_error(generate_cumulative_mapping(tg_ex1, select(df, -individual_id)),
-               'df should have a unit_id and individual_id column')
+               'should be in indiv_df format')
 
 })
 

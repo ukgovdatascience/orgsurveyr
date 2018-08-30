@@ -12,11 +12,13 @@ knitr::opts_chunk$set(
 )
 library(tidygraph, quietly = TRUE)
 library(ggraph, quietly = TRUE)
+library(dplyr, quietly = TRUE)
+library(orgsurveyr, quietly = TRUE)
 ```
 
 # orgsurveyr
 
-The goal of `orgsurveyr` is to facilitate the use of [Thomas Lin Pedersen's](https://www.data-imaginist.com) excellent [`tidygraph`](https://github.com/thomasp85/tidyraph) and [`ggraph`](https://github.com/thomasp85/ggraph) packages with organisational information used by many Human Resources departments, in particular employee surveys.  
+The goal of `orgsurveyr` is to facilitate the use of [Thomas Lin Pedersen's](https://www.data-imaginist.com) excellent [`tidygraph`](https://github.com/thomasp85/tidygraph) and [`ggraph`](https://github.com/thomasp85/ggraph) packages with organisational information used by many Human Resources departments, in particular employee surveys.  
 
 ## Installation
 
@@ -27,9 +29,9 @@ You can install orgsurveyr from github with:
 devtools::install_github("ukgovdatascience/orgsurveyr", build_vignettes = TRUE)
 ```
 
-## Example
+## Example - ggraph/tidygraph
 
-An organisation is a very basic type of network known as a tree.  The [`tidygraph`](https://github.com/thomasp85/tidyraph) package lets us simulate and represent a tree structure as follows:
+An organisation is a very basic type of network known as a tree.  The [`tidygraph`](https://github.com/thomasp85/tidygraph) package lets us simulate and represent a tree structure as follows:
 
 ```{r example-1}
 tg <- tidygraph::create_tree(13,3) 
@@ -43,7 +45,47 @@ The [`ggraph`](https://github.com/thomasp85/ggraph) package can be used to plot 
   geom_node_point(size=5) + theme_bw()
 ```
 
-The `orgsurveyr` package provides detailed vignettes, convenience functions and example data to help HR analysts make use of the [`ggraph`](https://github.com/thomasp85/ggraph) and [`tidygraph`](https://github.com/thomasp85/tidyraph) packages in the analysis of organisation data.
+## Example - orgsurveyr
+
+The `orgsurveyr` package provides detailed vignettes, convenience functions and example data to help HR analysts make use of the [`ggraph`](https://github.com/thomasp85/ggraph) and [`tidygraph`](https://github.com/thomasp85/tidygraph) packages in the analysis of organisation data.
+
+A realistic organisation can be simulated and plotted:
+
+```{r example-3}
+set.seed(1236)
+tg2 <- create_realistic_org(4,3, prob=0.3)
+plot_org(tg2)
+```
+
+Individual level data also be simulated first by simulating the number of individuals in unit:
+
+```{r example-4}
+tg3 <- simulate_unit_size(tg2)
+tg3
+```
+
+Followed by simulating the individuals and any additional variables.  The commands can be piped as per tidyverse convention:
+
+```{r example-5}
+tg3_individuals_df <- tg3 %>% 
+  simulate_individuals_df() %>%
+  mutate(test_var2 = purrr::map_dbl(individual_id, ~rnorm(1, 20,3)))
+tg3_individuals_df
+```
+
+The individual data is aggregated at the unit level.  This can be either be just those individuals associated with an organisational unit or (more usefully) a cumulative aggregation involving all individuals that are part of that unit and any units below it in the organisation:
+
+```{r example-6}
+summary_df <- calc_summary_df(tg=tg3, df=tg3_individuals_df, 
+                              selected_vars=c('test_var', 'test_var2'), is_cumulative=TRUE)
+summary_df
+```
+
+Finally the aggregated data can be plotted on the dendrogram:
+
+```{r example-7}
+plot_org(tg3, fill_var = 'test_var', summary_df)
+```
 
 # Further reading/viewing
 
