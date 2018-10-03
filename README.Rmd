@@ -2,6 +2,8 @@
 output: github_document
 ---
 
+[![Build Status](https://travis-ci.org/ukgovdatascience/orgsurveyr.svg?branch=master)](https://travis-ci.org/ukgovdatascience/orgsurveyr)
+
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 ```{r, echo = FALSE, message=FALSE}
