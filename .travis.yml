@@ -10,6 +10,8 @@ git:
 os:
   - linux
 
+sudo: required
+
 r_packages:
   - knitr
   - covr

@@ -1,12 +1,19 @@
 
+[![Build
+Status](https://travis-ci.org/ukgovdatascience/orgsurveyr.svg?branch=master)](https://travis-ci.org/ukgovdatascience/orgsurveyr)
+
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-orgsurveyr
-==========
 
-The goal of `orgsurveyr` is to facilitate the use of [Thomas Lin Pedersen's](https://www.data-imaginist.com) excellent [`tidygraph`](https://github.com/thomasp85/tidygraph) and [`ggraph`](https://github.com/thomasp85/ggraph) packages with organisational information used by many Human Resources departments, in particular employee surveys.
+# orgsurveyr
 
-Installation
-------------
+The goal of `orgsurveyr` is to facilitate the use of [Thomas Lin
+Pedersen’s](https://www.data-imaginist.com) excellent
+[`tidygraph`](https://github.com/thomasp85/tidygraph) and
+[`ggraph`](https://github.com/thomasp85/ggraph) packages with
+organisational information used by many Human Resources departments, in
+particular employee surveys.
+
+## Installation
 
 You can install orgsurveyr from github with:
 
@@ -15,10 +22,11 @@ You can install orgsurveyr from github with:
 devtools::install_github("ukgovdatascience/orgsurveyr", build_vignettes = TRUE)
 ```
 
-Example - ggraph/tidygraph
---------------------------
+## Example - ggraph/tidygraph
 
-An organisation is a very basic type of network known as a tree. The [`tidygraph`](https://github.com/thomasp85/tidygraph) package lets us simulate and represent a tree structure as follows:
+An organisation is a very basic type of network known as a tree. The
+[`tidygraph`](https://github.com/thomasp85/tidygraph) package lets us
+simulate and represent a tree structure as follows:
 
 ``` r
 tg <- tidygraph::create_tree(13,3) 
@@ -38,19 +46,25 @@ tg
 #> # ... with 9 more rows
 ```
 
-The [`ggraph`](https://github.com/thomasp85/ggraph) package can be used to plot networks with the familiar [`ggplot2`](http://ggplot2.tidyverse.org) syntax. Below the simulated organisation is plotted as a dendrogram:
+The [`ggraph`](https://github.com/thomasp85/ggraph) package can be used
+to plot networks with the familiar
+[`ggplot2`](http://ggplot2.tidyverse.org) syntax. Below the simulated
+organisation is plotted as a dendrogram:
 
 ``` r
   ggraph(tg, 'dendrogram') + geom_edge_diagonal() + 
   geom_node_point(size=5) + theme_bw()
 ```
 
-![](man/figures/README-example-2-1.png)
+![](man/figures/README-example-2-1.png)<!-- -->
 
-Example - orgsurveyr
---------------------
+## Example - orgsurveyr
 
-The `orgsurveyr` package provides detailed vignettes, convenience functions and example data to help HR analysts make use of the [`ggraph`](https://github.com/thomasp85/ggraph) and [`tidygraph`](https://github.com/thomasp85/tidygraph) packages in the analysis of organisation data.
+The `orgsurveyr` package provides detailed vignettes, convenience
+functions and example data to help HR analysts make use of the
+[`ggraph`](https://github.com/thomasp85/ggraph) and
+[`tidygraph`](https://github.com/thomasp85/tidygraph) packages in the
+analysis of organisation data.
 
 A realistic organisation can be simulated and plotted:
 
@@ -60,9 +74,10 @@ tg2 <- create_realistic_org(4,3, prob=0.3)
 plot_org(tg2)
 ```
 
-![](man/figures/README-example-3-1.png)
+![](man/figures/README-example-3-1.png)<!-- -->
 
-Individual level data also be simulated first by simulating the number of individuals in unit:
+Individual level data also be simulated first by simulating the number
+of individuals in unit:
 
 ``` r
 tg3 <- simulate_unit_size(tg2)
@@ -91,7 +106,8 @@ tg3
 #> # ... with 34 more rows
 ```
 
-Followed by simulating the individuals and any additional variables. The commands can be piped as per tidyverse convention:
+Followed by simulating the individuals and any additional variables. The
+commands can be piped as per tidyverse convention:
 
 ``` r
 tg3_individuals_df <- tg3 %>% 
@@ -114,7 +130,10 @@ tg3_individuals_df
 #> # ... with 136 more rows
 ```
 
-The individual data is aggregated at the unit level. This can be either be just those individuals associated with an organisational unit or (more usefully) a cumulative aggregation involving all individuals that are part of that unit and any units below it in the organisation:
+The individual data is aggregated at the unit level. This can be either
+be just those individuals associated with an organisational unit or
+(more usefully) a cumulative aggregation involving all individuals that
+are part of that unit and any units below it in the organisation:
 
 ``` r
 summary_df <- calc_summary_df(tg=tg3, df=tg3_individuals_df, 
@@ -143,11 +162,14 @@ Finally the aggregated data can be plotted on the dendrogram:
 plot_org(tg3, fill_var = 'test_var', summary_df)
 ```
 
-![](man/figures/README-example-7-1.png)
+![](man/figures/README-example-7-1.png)<!-- -->
 
-Further reading/viewing
-=======================
+# Further reading/viewing
 
--   [Data Imaginist](https://www.data-imaginist.com) - Thomas Lin Pedersen's blog
--   ['Tidying up your network analysis with tidygraph and ggraph'](https://www.rstudio.com/resources/videos/tidying-up-your-network-analysis-with-tidygraph-and-ggraph/): RStudio::conf presentation from Thomas Lin Pedersen
--   [useR 2018 Interview with Thomas Lin Pedersen](https://user2018.r-project.org/blog/2018/04/18/interview-with-thomas-lin-pedersen/)
+  - [Data Imaginist](https://www.data-imaginist.com) - Thomas Lin
+    Pedersen’s blog
+  - [‘Tidying up your network analysis with tidygraph and
+    ggraph’](https://www.rstudio.com/resources/videos/tidying-up-your-network-analysis-with-tidygraph-and-ggraph/):
+    RStudio::conf presentation from Thomas Lin Pedersen
+  - [useR 2018 Interview with Thomas Lin
+    Pedersen](https://user2018.r-project.org/blog/2018/04/18/interview-with-thomas-lin-pedersen/)
