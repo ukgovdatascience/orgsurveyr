@@ -12,6 +12,10 @@ os:
 
 r_packages:
   - knitr
+  - covr
+
+apt_packages:
+  - libudunits2-dev
 
 after_success:
   - Rscript -e 'devtools::install_github("jimhester/covr")'
