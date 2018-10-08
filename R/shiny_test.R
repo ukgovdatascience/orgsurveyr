@@ -11,21 +11,18 @@ test_viz_ui <- function() {
   fluidPage(
 
     # Application title
-    titlePanel("Old Faithful Geyser Data"),
+    titlePanel("Simple Interactive Organisation Plot"),
 
     # Sidebar with a slider input for number of bins
     sidebarLayout(
       sidebarPanel(
-        sliderInput("bins",
-                    "Number of bins:",
-                    min = 1,
-                    max = 50,
-                    value = 30)
+        sliderInput("n_children", "Number of children:", min = 1, max = 10, value = 4),
+        sliderInput("max_depth", "Maximum depth:", min = 1, max = 10, value = 3)
       ),
 
       # Show a plot of the generated distribution
       mainPanel(
-        plotOutput("distPlot")
+        plotOutput("plot")
       )
     )
   )
@@ -44,13 +41,17 @@ test_viz_ui <- function() {
 #' NULL
 test_viz_server <- function(input, output) {
 
-  output$distPlot <- renderPlot({
-    # generate bins based on input$bins from ui.R
-    x    <- faithful[, 2]
-    bins <- seq(min(x), max(x), length.out = input$bins + 1)
+  reactive_tg <- reactive({
 
-    # draw the histogram with the specified number of bins
-    hist(x, breaks = bins, col = 'darkgray', border = 'white')
+    set.seed(10001)
+    create_realistic_org(input$n_children,input$max_depth, prob=0.3)
+
+  })
+
+  output$plot <- renderPlot({
+
+    plot_org(reactive_tg())
+
   })
 }
 
