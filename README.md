@@ -1,6 +1,7 @@
 
 [![Build
 Status](https://travis-ci.org/ukgovdatascience/orgsurveyr.svg?branch=master)](https://travis-ci.org/ukgovdatascience/orgsurveyr)
+[![codecov](https://codecov.io/gh/ukgovdatascience/orgsurveyr/branch/master/graph/badge.svg)](https://codecov.io/gh/ukgovdatascience/orgsurveyr)
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
