@@ -19,7 +19,9 @@ test_viz_ui <- function() {
         sliderInput("n_children", "Number of children:", min = 1, max = 10, value = 4),
         sliderInput("max_depth", "Maximum depth:", min = 1, max = 10, value = 3),
         sliderInput("selected_prob", "Probability of deletion:", min = 0, max = 0.7, value = .3, step = 0.02),
-        checkboxInput('delete_units', 'Delete units (uncheck to just highlight):', value = TRUE)
+        checkboxInput('delete_units', 'Delete units (uncheck to just highlight):', value = TRUE),
+        checkboxInput('is_circular', 'Circularlize?:', value = FALSE),
+        actionButton("button", "Create new org plot")
       ),
 
       # Show a plot of the generated distribution
@@ -43,9 +45,15 @@ test_viz_ui <- function() {
 #' NULL
 test_viz_server <- function(input, output) {
 
+  values <- reactiveValues(tg_seed=10001)
+
+  observeEvent(input$button, {
+    values$tg_seed <- sample(1:10000, 1)
+  })
+
   reactive_tg <- reactive({
 
-    set.seed(10001)
+    set.seed(values$tg_seed)
     create_realistic_org(input$n_children,input$max_depth, prob=input$selected_prob,
                          delete_units=input$delete_units)
 
@@ -57,9 +65,9 @@ test_viz_server <- function(input, output) {
     if(!input$delete_units) {
       reactive_tg() %>%
         dplyr::mutate(to_delete=as.factor(to_delete)) %>%
-        plot_org(fill_var='to_delete')
+        plot_org(fill_var='to_delete', is_circular = input$is_circular)
     } else {
-      plot_org(reactive_tg(), fill_var='depth')
+      plot_org(reactive_tg(), fill_var='depth', is_circular = input$is_circular)
     }
 
   })
