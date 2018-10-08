@@ -17,7 +17,9 @@ test_viz_ui <- function() {
     sidebarLayout(
       sidebarPanel(
         sliderInput("n_children", "Number of children:", min = 1, max = 10, value = 4),
-        sliderInput("max_depth", "Maximum depth:", min = 1, max = 10, value = 3)
+        sliderInput("max_depth", "Maximum depth:", min = 1, max = 10, value = 3),
+        sliderInput("selected_prob", "Probability of deletion:", min = 0, max = 0.7, value = .3, step = 0.02),
+        checkboxInput('delete_units', 'Delete units (uncheck to just highlight):', value = TRUE)
       ),
 
       # Show a plot of the generated distribution
@@ -44,13 +46,21 @@ test_viz_server <- function(input, output) {
   reactive_tg <- reactive({
 
     set.seed(10001)
-    create_realistic_org(input$n_children,input$max_depth, prob=0.3)
+    create_realistic_org(input$n_children,input$max_depth, prob=input$selected_prob,
+                         delete_units=input$delete_units)
+
 
   })
 
   output$plot <- renderPlot({
 
-    plot_org(reactive_tg())
+    if(!input$delete_units) {
+      reactive_tg() %>%
+        dplyr::mutate(to_delete=as.factor(to_delete)) %>%
+        plot_org(fill_var='to_delete')
+    } else {
+      plot_org(reactive_tg(), fill_var='depth')
+    }
 
   })
 }
