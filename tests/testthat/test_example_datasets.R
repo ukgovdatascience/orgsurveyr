@@ -27,8 +27,8 @@ test_that("example dataset tg_org_indiv_df has been generated as expected", {
   expect_equal(colnames(tg_org_indiv_df),
                c("individual_id", "individual_name", "unit_id", "test_var", "test_var2"))
   expect_equal(tg_org_indiv_df$test_var[1:5],
-               c(9.97142116302217, 16.0045160018839, 11.7698728828666, 12.9990017207062,
-                 9.6716503177628))
+               c(7.27120357870557, 8.52708686714899, 9.21213868594158, 12.8746475191596,
+                 5.01780702303503))
 })
 
 test_that("example dataset tg_org_indiv_tall_df has been generated as expected", {
@@ -39,8 +39,8 @@ test_that("example dataset tg_org_indiv_tall_df has been generated as expected",
   expect_equal(colnames(tg_org_indiv_tall_df),
                c("individual_id", "metric_id", "value"))
   expect_equal(tg_org_indiv_tall_df$value[1:5],
-               c(9.97142116302217, 16.0045160018839, 11.7698728828666, 12.9990017207062,
-                 9.6716503177628))
+               c(7.27120357870557, 8.52708686714899, 9.21213868594158, 12.8746475191596,
+                 5.01780702303503))
 })
 
 test_that("example dataset tg_org_summarised_df has been generated as expected", {
@@ -51,7 +51,7 @@ test_that("example dataset tg_org_summarised_df has been generated as expected",
   expect_equal(colnames(tg_org_summarised_df),
                c("unit_id", "metric_id", "value"))
   expect_equal(tg_org_summarised_df$value[1:5],
-               c(10.2102542030426, 20.2694071542171, 9.93863440487056, 20.6313491968555,
-                 9.56806466812995))
+               c(10.168569768016, 20.2131138471325, 10.9109698461405, 20.1530991768429,
+                 10.4401917959373))
 
 })

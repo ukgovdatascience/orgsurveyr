@@ -57,8 +57,8 @@ test_that("calc_summary_df generates expected output", {
   expect_equal(purrr::map_dbl(test_output$output, nrow), c(29, 29, 58, 58, 29, 29, 58, 58))
 
   # check values for each table generated
-  expect_equal(t1$value[1:6], c(19.6247378317358, 20.3542107587949, 19.0223275134199, 19.482988347118,
-                                20.4853179279958, 19.1934190306043))
+  expect_equal(t1$value[1:6], c(19.6247378317358, 19.0516794814778, 19.1752447492033, 19.5225435836275,
+                                20.3542107587949, 19.5604507759049))
   ## could store expected output df and compare here
 
 })

@@ -18,7 +18,8 @@ test_that("generate_cumulative_mapping generates expected output", {
   expect_equal(ncol(map_df), 2)
 
   # check values of unit size generated
-  expect_equal(group_size_df %>% select(n) %>% slice(1:5) %>% unlist() %>% unname(), c(146L, 59L, 64L, 20L, 21L))
+  expect_equal(group_size_df %>% select(n) %>% slice(1:5) %>% unlist() %>% unname(),
+               c(146L, 10L, 20L, 21L, 12L))
 
 })
 
