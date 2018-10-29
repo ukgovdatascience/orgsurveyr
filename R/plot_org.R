@@ -71,7 +71,7 @@ plot_org <- function(x, fill_var = 'depth', df=NULL, is_circular = FALSE) {
     stopifnot(nrow(df_filtered) > 0)
 
     tg <- x %>%
-      tidygraph::inner_join(df_filtered, by='unit_id')
+      tidygraph::left_join(df_filtered, by='unit_id')
 
   } else {
     tg <- x
