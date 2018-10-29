@@ -32,7 +32,7 @@ simulate_individuals_df <- function(x) {
     dplyr::mutate(individual_name = purrr::map2(unit_id, unit_size, ~paste(.x, seq(1,.y), sep='_')),
                   test_var = purrr::map(unit_size, ~stats::rnorm(., mean=10, sd=3))) %>%
     tidyr::unnest() %>%
-    dplyr::mutate(individual_id = dplyr::row_number()) %>%
+    dplyr::mutate(individual_id = dplyr::row_number() %>% as.character()) %>%
     dplyr::select(individual_id, individual_name, unit_id, test_var)
 
 }

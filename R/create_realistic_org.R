@@ -67,7 +67,7 @@ create_realistic_org <- function(n_children = 4, max_depth = 3, prob=0.3, .f=NUL
   }
 
   out <- create_regular_org(n_children, max_depth) %>%
-    tidygraph::mutate(unit_id = dplyr::row_number(),
+    tidygraph::mutate(unit_id = dplyr::row_number() %>% as.character(),
                       depth = tidygraph::bfs_dist(1)) %>%
     tidygraph::inner_join(prob_df, by='depth') %>%
     tidygraph::mutate(branch_delete = stats::rbinom(nrow(tidygraph::.N()), 1, prob_deletion),
