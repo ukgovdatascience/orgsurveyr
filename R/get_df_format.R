@@ -39,8 +39,8 @@ get_df_format <- function(df) {
       return(format_id)
     } else if (identical(names(template_df_format), names(query_df_format)) &
                !identical(unname(template_df_format), unname(query_df_format))) {
-      stop(sprintf('%s format but column types incorrect, try data("%s") for an example', format_id, template_df))
-      #return(format_id)
+      warning(sprintf('%s format but column types incorrect, try data("%s") for an example', format_id, template_df))
+      return(format_id)
     } else {
       return(NULL)
     }
