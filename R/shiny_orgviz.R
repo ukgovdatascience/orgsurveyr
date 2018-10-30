@@ -19,6 +19,7 @@ orgviz_ui <- function() {
         checkboxInput('is_circular', 'Circularlize?:', value = FALSE),
         checkboxInput('is_dendrogram', 'Dendrogram?:', value = TRUE),
         uiOutput('var_ui'),
+        uiOutput('root_unit'),
         actionButton("button", "Create new org plot")
       ),
 
@@ -66,8 +67,13 @@ orgviz_server <- function(input, output, tg=NULL, df=NULL) {
   var_list <- df %>% dplyr::distinct(metric_id) %>% unlist() %>% unname()
 
   values <- reactiveValues(
-    selected_var = var_list[1]
+    selected_var = var_list[1],
+    selected_node = '1'
     )
+
+  observeEvent(input$root_unit, {
+    values$selected_node <- input$root_unit
+  })
 
   output$var_ui <- renderUI({
     selectInput('plot_var', 'Select a variable to plot', choices = var_list, selected = var_list[2])
@@ -77,6 +83,26 @@ orgviz_server <- function(input, output, tg=NULL, df=NULL) {
 
       plot_org(tg, fill_var=input$plot_var, df=df,
                is_circular = input$is_circular, is_dendrogram = input$is_dendrogram)
+
+  })
+
+  output$root_unit <- renderUI({
+
+    dept_info <- tg %>%
+      tidygraph::filter(!tidygraph::node_is_leaf()) %>%
+      tidygraph::activate(nodes) %>%
+      tidygraph::as_tibble() %>%
+      dplyr::arrange(unit_id)
+
+    choices_vector <- dept_info$unit_id
+    names(choices_vector) <- dept_info$unit_id
+
+    selectInput(
+      'root_unit',
+      'Choose an organisational unit',
+      choices = choices_vector,
+      selected = values$selected_node
+    )
 
   })
 }
