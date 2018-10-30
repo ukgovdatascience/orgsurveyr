@@ -56,8 +56,21 @@ test_viz_server <- function(input, output) {
 
     set.seed(values$tg_seed)
     create_realistic_org(input$n_children,input$max_depth, prob=input$selected_prob,
-                         delete_units=input$delete_units)
+                         delete_units=input$delete_units) %>%
+      simulate_unit_size()
 
+
+  })
+
+  reactive_df <- reactive({
+
+    # simulate individual data and summarise
+    indiv_df <- reactive_tg() %>%
+      simulate_individuals_df() %>%
+      dplyr::mutate(test_var2 = purrr::map_dbl(individual_id, ~rnorm(1, 20,3)))
+
+    calc_summary_df(reactive_tg(), indiv_df, NULL,
+                                  c('test_var', 'test_var2'), TRUE)
 
   })
 
@@ -68,7 +81,7 @@ test_viz_server <- function(input, output) {
         dplyr::mutate(to_delete=as.factor(to_delete)) %>%
         plot_org(fill_var='to_delete', is_circular = input$is_circular)
     } else {
-      plot_org(reactive_tg(), fill_var='depth',
+      plot_org(reactive_tg(), fill_var='test_var2', df=reactive_df(),
                is_circular = input$is_circular, is_dendrogram = input$is_dendrogram)
     }
 
