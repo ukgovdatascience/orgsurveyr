@@ -21,6 +21,7 @@ test_viz_ui <- function() {
         sliderInput("selected_prob", "Probability of deletion:", min = 0, max = 0.7, value = .3, step = 0.02),
         checkboxInput('delete_units', 'Delete units (uncheck to just highlight):', value = TRUE),
         checkboxInput('is_circular', 'Circularlize?:', value = FALSE),
+        checkboxInput('is_dendrogram', 'Dendrogram?:', value = TRUE),
         actionButton("button", "Create new org plot")
       ),
 
@@ -67,7 +68,8 @@ test_viz_server <- function(input, output) {
         dplyr::mutate(to_delete=as.factor(to_delete)) %>%
         plot_org(fill_var='to_delete', is_circular = input$is_circular)
     } else {
-      plot_org(reactive_tg(), fill_var='depth', is_circular = input$is_circular)
+      plot_org(reactive_tg(), fill_var='depth',
+               is_circular = input$is_circular, is_dendrogram = input$is_dendrogram)
     }
 
   })
