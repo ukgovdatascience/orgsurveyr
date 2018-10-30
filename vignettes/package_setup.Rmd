@@ -1,0 +1,67 @@
+---
+title: "Setting Up The orgsurveyr Package"
+author: "Phil Chapman"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Setting Up The orgsurveyr Package}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+library(dplyr, quietly = TRUE)
+library(ggplot2, quietly = TRUE)
+library(orgsurveyr, quietly = TRUE)
+
+```
+
+# Introduction
+
+This vignette details the steps required to set up and configure the orgsurveyr package, in particular how to use the shiny applications embedded within the package.
+
+# Running shiny apps
+
+## From within RStudio
+
+To run a shiny app within RStudio type the name of the function;
+
+```{r eval=FALSE}
+test_viz()
+```
+
+More options
+
+- `test_viz` just simulates and organisation
+- future viz - permits visualisation of either simulated or real data as long as its formatted in a certain way
+
+## Setting up on a Shiny Server
+
+A detailed explanation of setting up and configuring a Shiny Server is beyond the scope of this vignette, but assuming that a Shiny Server is available and the orgsurveyr package is installed, it is a case of constructing a shiny app file as follows:
+
+```{r eval=FALSE}
+library(shiny)
+library(orgsurveyr)
+
+shinyApp(ui = test_viz_ui(),
+         server = function(input, output) {
+           test_viz_server(input, output)
+         }
+)
+
+```
+
+This can be modified as required and copied to the user's shiny server directory.  
+
+For convenience there is a `make_shiny_app` function which creates a template shiny application file like that above.
+
+# Session Info
+
+```{r}
+sessionInfo()
+```
+
