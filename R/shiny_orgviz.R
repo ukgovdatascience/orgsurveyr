@@ -25,7 +25,7 @@ orgviz_ui <- function() {
 
       # Show a plot of the generated distribution
       mainPanel(
-        plotOutput("plot")
+        plotOutput("plot", click='plot_click')
       )
     )
   )
@@ -75,6 +75,14 @@ orgviz_server <- function(input, output, tg=NULL, df=NULL) {
     values$selected_node <- input$root_unit
   })
 
+  observeEvent(input$plot_click, {
+    np <- nearPoints(plot_gg()$data, input$plot_click,
+                     xvar='x', yvar='y', maxpoints=1, threshold=10)
+    if(nrow(np) ==1) {
+      values$selected_node <- np$unit_id
+    }
+  })
+
   output$var_ui <- renderUI({
     selectInput('plot_var', 'Select a variable to plot', choices = var_list, selected = var_list[2])
   })
@@ -91,11 +99,15 @@ orgviz_server <- function(input, output, tg=NULL, df=NULL) {
 
   })
 
+  plot_gg <- reactive({
+
+    plot_org(tg_filtered(), fill_var=input$plot_var, df=df,
+             is_circular = input$is_circular, is_dendrogram = input$is_dendrogram)
+
+  })
+
   output$plot <- renderPlot({
-
-      plot_org(tg_filtered(), fill_var=input$plot_var, df=df,
-               is_circular = input$is_circular, is_dendrogram = input$is_dendrogram)
-
+    plot_gg()
   })
 
   output$root_unit <- renderUI({
