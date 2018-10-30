@@ -11,7 +11,7 @@ orgviz_ui <- function() {
   fluidPage(
 
     # Application title
-    titlePanel("Simple Interactive Organisation Plot"),
+    titlePanel("Orgsurveyr Shiny App"),
 
     # Sidebar with a slider input for number of bins
     sidebarLayout(
@@ -22,6 +22,7 @@ orgviz_ui <- function() {
         checkboxInput('delete_units', 'Delete units (uncheck to just highlight):', value = TRUE),
         checkboxInput('is_circular', 'Circularlize?:', value = FALSE),
         checkboxInput('is_dendrogram', 'Dendrogram?:', value = TRUE),
+        uiOutput('var_ui'),
         actionButton("button", "Create new org plot")
       ),
 
@@ -46,7 +47,9 @@ orgviz_ui <- function() {
 #' NULL
 orgviz_server <- function(input, output) {
 
-  values <- reactiveValues(tg_seed=10001)
+  values <- reactiveValues(
+    tg_seed=10001
+    )
 
   observeEvent(input$button, {
     values$tg_seed <- sample(1:10000, 1)
@@ -74,6 +77,14 @@ orgviz_server <- function(input, output) {
 
   })
 
+  var_list <- reactive({
+    reactive_df() %>% dplyr::select(metric_id) %>% unlist() %>% unname()
+  })
+
+  output$var_ui <- renderUI({
+    selectInput('plot_var', 'Select a variable to plot', choices = var_list(), selected = var_list()[1])
+  })
+
   output$plot <- renderPlot({
 
     if(!input$delete_units) {
@@ -81,7 +92,7 @@ orgviz_server <- function(input, output) {
         dplyr::mutate(to_delete=as.factor(to_delete)) %>%
         plot_org(fill_var='to_delete', is_circular = input$is_circular)
     } else {
-      plot_org(reactive_tg(), fill_var='test_var2', df=reactive_df(),
+      plot_org(reactive_tg(), fill_var=input$plot_var, df=reactive_df(),
                is_circular = input$is_circular, is_dendrogram = input$is_dendrogram)
     }
 
