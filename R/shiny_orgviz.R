@@ -79,9 +79,21 @@ orgviz_server <- function(input, output, tg=NULL, df=NULL) {
     selectInput('plot_var', 'Select a variable to plot', choices = var_list, selected = var_list[2])
   })
 
+  tg_filtered <- reactive({
+
+    nodes <- tg %>% tidygraph::activate(nodes) %>%
+      tidygraph::as_tibble()
+
+    sn <- which(nodes$unit_id == values$selected_node)
+
+    tg %>%
+      tidygraph::filter(tidygraph::node_distance_from(sn) < Inf)
+
+  })
+
   output$plot <- renderPlot({
 
-      plot_org(tg, fill_var=input$plot_var, df=df,
+      plot_org(tg_filtered(), fill_var=input$plot_var, df=df,
                is_circular = input$is_circular, is_dendrogram = input$is_dendrogram)
 
   })
