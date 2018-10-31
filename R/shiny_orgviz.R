@@ -78,6 +78,10 @@ orgviz_server <- function(input, output, tg=NULL, df=NULL) {
     values$selected_node <- input$root_unit
   })
 
+  observeEvent(input$plot_var, {
+    values$selected_var <- input$plot_var
+  })
+
   observeEvent(input$plot_click, {
     np <- nearPoints(plot_gg()$data, input$plot_click,
                      xvar='x', yvar='y', maxpoints=1, threshold=10)
@@ -112,7 +116,7 @@ orgviz_server <- function(input, output, tg=NULL, df=NULL) {
 
   plot_gg <- reactive({
 
-    plot_org(tg_filtered(), fill_var=input$plot_var, df=df,
+    plot_org(tg_filtered(), fill_var=values$selected_var, df=df,
              is_circular = input$is_circular, is_dendrogram = input$is_dendrogram) +
       scale_fill_gradientn(colours=RColorBrewer::brewer.pal(11, 'PiYG'))
 
@@ -144,7 +148,7 @@ orgviz_server <- function(input, output, tg=NULL, df=NULL) {
 
   output$pointinfo <- renderPrint({
     nearPoints(plot_gg()$data, input$plot_hover, xvar='x', yvar='y') %>%
-      .[, c('unit_id', input$plot_var)]
+      .[, c('unit_id', values$selected_var)]
 
   })
 
