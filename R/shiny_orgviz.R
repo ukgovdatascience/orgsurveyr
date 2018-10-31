@@ -16,8 +16,12 @@ orgviz_ui <- function() {
     # Sidebar with a slider input for number of bins
     sidebarLayout(
       sidebarPanel(
-        checkboxInput('is_circular', 'Circularlize?:', value = FALSE),
-        checkboxInput('is_dendrogram', 'Dendrogram?:', value = TRUE),
+        selectInput(
+          'plot_type',
+          "Choose a plot type:",
+          choices = c("Sunburst", "Icicle", "Dendrogram", "Circular Dendrogram"),
+          selected = 'Sunburst'
+        ),
         uiOutput('var_ui'),
         uiOutput('root_unit'),
         actionButton("button", "Create new org plot")
@@ -71,7 +75,9 @@ orgviz_server <- function(input, output, tg=NULL, df=NULL) {
 
   values <- reactiveValues(
     selected_var = var_list[1],
-    selected_node = '1'
+    selected_node = '1',
+    is_circular = TRUE,
+    is_dendrogram = TRUE
     )
 
   observeEvent(input$root_unit, {
@@ -87,6 +93,22 @@ orgviz_server <- function(input, output, tg=NULL, df=NULL) {
                      xvar='x', yvar='y', maxpoints=1, threshold=10)
     if(nrow(np) ==1) {
       values$selected_node <- np$unit_id
+    }
+  })
+
+  observeEvent(input$plot_type, {
+    if(input$plot_type == 'Sunburst') {
+      values$is_dendrogram = FALSE
+      values$is_circular = TRUE
+    } else if (input$plot_type == 'Icicle') {
+      values$is_dendrogram = FALSE
+      values$is_circular = FALSE
+    } else if (input$plot_type == 'Dendrogram') {
+      values$is_dendrogram = TRUE
+      values$is_circular = FALSE
+    } else if (input$plot_type == 'Circular Dendrogram') {
+      values$is_dendrogram = TRUE
+      values$is_circular = TRUE
     }
   })
 
@@ -117,7 +139,7 @@ orgviz_server <- function(input, output, tg=NULL, df=NULL) {
   plot_gg <- reactive({
 
     plot_org(tg_filtered(), fill_var=values$selected_var, df=df,
-             is_circular = input$is_circular, is_dendrogram = input$is_dendrogram) +
+             is_circular = values$is_circular, is_dendrogram = values$is_dendrogram) +
       scale_fill_gradientn(colours=RColorBrewer::brewer.pal(11, 'PiYG'))
 
   })
