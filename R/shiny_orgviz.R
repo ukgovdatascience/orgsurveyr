@@ -25,6 +25,7 @@ orgviz_ui <- function() {
 
       # Show a plot of the generated distribution
       mainPanel(
+        verbatimTextOutput('clickedinfo'),
         plotOutput("plot", click='plot_click')
       )
     )
@@ -81,6 +82,14 @@ orgviz_server <- function(input, output, tg=NULL, df=NULL) {
     if(nrow(np) ==1) {
       values$selected_node <- np$unit_id
     }
+  })
+
+  output$clickedinfo <- renderPrint({
+    tg %>%
+      tidygraph::activate(nodes) %>%
+      tidygraph::as_tibble() %>%
+      dplyr::filter(unit_id == values$selected_node) %>%
+      unlist()
   })
 
   output$var_ui <- renderUI({
