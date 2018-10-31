@@ -143,7 +143,7 @@ orgviz_server <- function(input, output, tg=NULL, df=NULL) {
 
   output$pointinfo <- renderPrint({
     nearPoints(plot_gg()$data, input$plot_hover, xvar='x', yvar='y') %>%
-      dplyr::select_at(dplyr::vars(c('unit_id', input$plot_var))) %>% unlist()
+      .[, c('unit_id', input$plot_var)]
 
   })
 
