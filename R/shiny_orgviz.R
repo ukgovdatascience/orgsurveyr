@@ -113,7 +113,8 @@ orgviz_server <- function(input, output, tg=NULL, df=NULL) {
   plot_gg <- reactive({
 
     plot_org(tg_filtered(), fill_var=input$plot_var, df=df,
-             is_circular = input$is_circular, is_dendrogram = input$is_dendrogram)
+             is_circular = input$is_circular, is_dendrogram = input$is_dendrogram) +
+      scale_fill_gradientn(colours=RColorBrewer::brewer.pal(11, 'PiYG'))
 
   })
 
