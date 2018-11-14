@@ -1,13 +1,13 @@
 Package: orgsurveyr
 Title: Visualising and Analysing Organisation Data As Tidy Networks
-Version: 0.3.0
+Version: 0.4.0
 Authors@R: c(
     person("Phil", "Chapman", email = "phil.chapman@dwp.gsi.gov.uk", role = c("aut", "cre")),
     person("Matthew", "Gregory", email = "matthew.gregory@digital.cabinet-office.gov.uk",
     role = "ctb")
     )
-Description: Lightweight wrapper functions to facilitate the use of tidygraph and ggraph for
-    the analysis and visualisation of organisation data.
+Description: Lightweight wrapper functions and shiny applications to facilitate the use of
+    tidygraph and ggraph for the analysis and visualisation of organisation data.
 URL: https://github.com/ukgovdatascience/orgsurveyr
 BugReports: https://github.com/ukgovdatascience/orgsurveyr/issues
 Depends: R (>= 3.5.0)
@@ -20,12 +20,13 @@ Suggests: knitr,
 VignetteBuilder: knitr
 Imports:
     tidygraph (>= 1.0.0),
-    ggforce (>= 0.1.3),
+    ggforce (>= 0.1.2),
     ggraph (>= 1.0.0),
     dplyr (>= 0.7.0),
     tidyr,
     tibble (>= 0.8.0),
     purrr (>= 0.2.0),
     ggplot2 (>= 2.0.0),
-    magrittr
+    magrittr,
+    shiny
 RoxygenNote: 6.0.1
