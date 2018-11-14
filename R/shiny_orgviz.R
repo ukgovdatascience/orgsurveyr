@@ -24,7 +24,7 @@ orgviz_ui <- function() {
         ),
         uiOutput('var_ui'),
         uiOutput('root_unit'),
-        actionButton("button", "Create new org plot")
+        actionButton("up_one_level", "Go up one level")
       ),
 
       # Show a plot of the generated distribution
@@ -94,6 +94,28 @@ orgviz_server <- function(input, output, tg=NULL, df=NULL) {
     if(nrow(np) ==1) {
       values$selected_node <- np$unit_id
     }
+  })
+
+  # go up one level in the org when button pressed
+  observeEvent(input$up_one_level, {
+
+    node_parent <- tg %>%
+      tidygraph::activate(nodes) %>%
+      tidygraph::mutate(node_parent=tidygraph::dfs_parent()) %>%
+      tidygraph::as_tibble() %>%
+      dplyr::filter(unit_id == values$selected_node)
+
+    if(is.na(node_parent$node_parent)) {
+      return()
+    }
+
+    nodes <- tg %>%
+      tidygraph::activate(nodes) %>%
+      tidygraph::as_tibble() %>%
+      dplyr::filter(dplyr::row_number() == node_parent$node_parent)
+
+    values$selected_node <- nodes$unit_id
+
   })
 
   observeEvent(input$plot_type, {
