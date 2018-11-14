@@ -4,7 +4,7 @@
 \alias{plot_org}
 \title{Simple organisation plot}
 \usage{
-plot_org(x, fill_var = "depth", df = NULL, is_circular = FALSE,
+plot_org(x, fill_var = "org_depth", df = NULL, is_circular = FALSE,
   is_dendrogram = TRUE, return_tbl_graph = FALSE)
 }
 \arguments{
@@ -49,11 +49,11 @@ tg2
 
 # plot the organisation using the depth of the unit in the organisation as fill colour
 \dontrun{
-plot_org(tg2, fill_var='depth') #normal dendrogram
-plot_org(tg2, fill_var='depth', is_circular=TRUE) #circular dendrogram
+plot_org(tg2, fill_var='org_depth') #normal dendrogram
+plot_org(tg2, fill_var='org_depth', is_circular=TRUE) #circular dendrogram
 
 # build on ggraph object using ggraph functionality - ie add unit sizes
-plot_org(tg2, fill_var='depth') + geom_node_text(aes(label=unit_size), color='white')
+plot_org(tg2, fill_var='org_depth') + geom_node_text(aes(label=unit_size), color='white')
 }
 
 # can also include aggregated unit information from calc_summary_df
