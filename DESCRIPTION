@@ -28,5 +28,6 @@ Imports:
     purrr (>= 0.2.0),
     ggplot2 (>= 2.0.0),
     magrittr,
-    shiny
+    shiny,
+    RColorBrewer
 RoxygenNote: 6.0.1
