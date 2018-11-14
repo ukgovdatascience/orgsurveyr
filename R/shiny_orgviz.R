@@ -192,7 +192,7 @@ orgviz_server <- function(input, output, tg=NULL, df=NULL) {
 
   output$pointinfo <- renderPrint({
     nearPoints(plot_gg()$data, input$plot_hover, xvar='x', yvar='y') %>%
-      .[, c('unit_id', values$selected_var)]
+      dplyr::select(suppressWarnings(dplyr::one_of(c('unit_id', 'org_depth', var_list))))
 
   })
 
