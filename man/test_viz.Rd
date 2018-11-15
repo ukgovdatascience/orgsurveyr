@@ -2,7 +2,7 @@
 % Please edit documentation in R/shiny_test.R
 \name{test_viz}
 \alias{test_viz}
-\title{Test visualisation shiny app}
+\title{Testviz shiny app}
 \usage{
 test_viz()
 }
@@ -10,8 +10,16 @@ test_viz()
 runs a shiny app
 }
 \description{
-Test visualisation shiny app
+Convenience function to run the test_viz shiny app within an R session.
+}
+\details{
+The test_viz shiny app allows interactive simulation and visualisation of organisations of different shapes and
+sizes.
 }
 \examples{
-NULL
+\dontrun{
+
+test_viz()
+
+}
 }

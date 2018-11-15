@@ -2,7 +2,7 @@
 % Please edit documentation in R/shiny_test.R
 \name{test_viz_ui}
 \alias{test_viz_ui}
-\title{Test visualisation UI}
+\title{Testviz shiny UI}
 \usage{
 test_viz_ui()
 }
@@ -10,8 +10,16 @@ test_viz_ui()
 shiny ui object
 }
 \description{
-Test visualisation UI
+Creates a shiny UI object for the test_viz shiny app
 }
 \examples{
-NULL
+\dontrun{
+library(shiny)
+
+shinyApp(ui = test_viz_ui(),
+        server = function(input, output) {
+          test_viz_server(input, output)
+        }
+)
+}
 }
