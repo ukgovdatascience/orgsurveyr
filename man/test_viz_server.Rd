@@ -2,7 +2,7 @@
 % Please edit documentation in R/shiny_test.R
 \name{test_viz_server}
 \alias{test_viz_server}
-\title{Test visualisation server}
+\title{Testviz shiny server}
 \usage{
 test_viz_server(input, output)
 }
@@ -15,8 +15,16 @@ test_viz_server(input, output)
 shiny server function
 }
 \description{
-Test visualisation server
+Creates a shiny server object for the test_viz shiny app
 }
 \examples{
-NULL
+\dontrun{
+library(shiny)
+
+shinyApp(ui = test_viz_ui(),
+        server = function(input, output) {
+          test_viz_server(input, output)
+        }
+)
+}
 }

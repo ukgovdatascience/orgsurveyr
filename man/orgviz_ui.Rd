@@ -10,8 +10,16 @@ orgviz_ui()
 shiny ui object
 }
 \description{
-Orgviz shiny UI
+Creates a shiny UI object for the orgviz shiny app
 }
 \examples{
-NULL
+\dontrun{
+library(shiny)
+
+shinyApp(ui = orgviz_ui(),
+         server = function(input, output) {
+           orgviz_server(input, output, tg = NULL, df = NULL)
+         }
+)
+}
 }
