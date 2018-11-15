@@ -24,24 +24,34 @@ library(orgsurveyr, quietly = TRUE)
 
 This vignette details the steps required to set up and configure the orgsurveyr package, in particular how to use the shiny applications embedded within the package.
 
-# Running shiny apps
+# Running shiny apps within RStudio
 
-## From within RStudio
+## General approach
 
-To run a shiny app within RStudio type the name of the function;
+To run the `test_viz` shiny app within RStudio type the name of the function:
 
 ```{r eval=FALSE}
 test_viz()
 ```
 
-More options
+Other shiny apps:
 
-- `test_viz` just simulates and organisation
-- future viz - permits visualisation of either simulated or real data as long as its formatted in a certain way
+- `test_viz` - simulates an organisation with different characteristics
+- `orgviz` - permits visualisation of either simulated or real data as long as the data formats described in [orgsurveyr-data-formats](../html/orgsurveyr-data-formats.html) as used.
 
-## Setting up on a Shiny Server
+## Further configuration
 
-A detailed explanation of setting up and configuring a Shiny Server is beyond the scope of this vignette, but assuming that a Shiny Server is available and the orgsurveyr package is installed, it is a case of constructing a shiny app file as follows:
+Whilst the `test_viz` function has no parameters, the `orgviz` function takes two parameters, `tg` and `df`.  These allow the user to pass a tidygraph object and a data frame containing summary metrics for the organisation into the shiny app for plotting.  For example:
+
+```{r eval=FALSE}
+orgviz(tg = orgsurveyr::tg_org, df = orgsurveyr::tg_org_summarised_df)
+```
+
+# Running apps on a Shiny Server
+
+## General approach
+
+Assuming that a Shiny Server is available and the orgsurveyr package is installed, it is a case of constructing a shiny app file as follows:
 
 ```{r eval=FALSE}
 library(shiny)
@@ -57,7 +67,29 @@ shinyApp(ui = test_viz_ui(),
 
 This can be modified as required and copied to the user's shiny server directory.  
 
-For convenience there is a `make_shiny_app` function which creates a template shiny application file like that above.
+For convenience there is a [`make_shiny_app`](../html/make_shiny_app.html) function which creates a template shiny application file like that above for both the `test_viz` and `orgviz` shiny apps.
+
+## Further configuration
+
+A shiny app file for the `orgviz` package which includes custom data might look like this:
+
+```{r eval=FALSE}
+library(shiny)
+library(orgsurveyr)
+
+my_tg <- orgsurveyr::tg_org
+my_df <- orgsurveyr::tg_org_summarised_df
+
+shinyApp(ui = orgviz_ui(),
+         server = function(input, output) {
+           orgviz_server(input, output, tg = my_tg, df = my_df)
+         }
+)
+```
+
+## Docker
+
+The orgsurveyr package can be installed and run within a Docker container that runs both RStudio Server and Shiny Server. This is a convenient way of trying out the Shiny apps with minimal setup overhead and is also a useful way to learn how to configure a Shiny Server. See the README on the package's GitHub repository README for more information.
 
 # Session Info
 
