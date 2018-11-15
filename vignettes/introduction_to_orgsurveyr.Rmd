@@ -123,11 +123,23 @@ ggraph(plot_tg, 'partition', circular = TRUE) +
   theme_bw()
 ```
 
+## Interactive visualisations
 
+The following shiny apps are included in the `orgsurveyr` package:
+
+- `test_viz` - simulates an organisation with different characteristics
+- `orgviz` - permits visualisation of either simulated or real data as long as the data formats described in [orgsurveyr-data-formats](../html/orgsurveyr-data-formats.html) as used.
+
+Further information on using these is available in the [Package Setup Vignette](package_setup.html) but to visualise the examples above we can just type the following command:
+
+```{r eval=FALSE}
+orgviz(tg=tg3, df=summary_df)
+```
 
 # Further reading/viewing
 
 - [Organisations With ggraph vignette](organisations_with_ggraph.html)
+- [Package Setup Vignette](package_setup.html)
 - [Data Imaginist](https://www.data-imaginist.com) - Thomas Lin Pedersen's blog
 - ['Tidying up your network analysis with tidygraph and ggraph'](https://www.rstudio.com/resources/videos/tidying-up-your-network-analysis-with-tidygraph-and-ggraph/): RStudio::conf presentation from Thomas Lin Pedersen
 - [useR 2018 Interview with Thomas Lin Pedersen](https://user2018.r-project.org/blog/2018/04/18/interview-with-thomas-lin-pedersen/)
