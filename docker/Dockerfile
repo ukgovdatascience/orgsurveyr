@@ -18,4 +18,5 @@ RUN R CMD INSTALL /orgsurveyr && \
 #configure shiny server
 COPY ./docker/shiny-server.conf /etc/shiny-server/shiny-server.conf
 COPY ./inst/shiny/test_viz_app.R /home/rstudio/ShinyApps/orgsurveyr/test_viz/app.R
+COPY ./inst/shiny/orgviz_app.R /home/rstudio/ShinyApps/orgsurveyr/orgviz/app.R
 RUN chown -hR rstudio:rstudio /home/rstudio/ShinyApps
