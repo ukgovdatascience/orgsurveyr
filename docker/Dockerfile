@@ -12,7 +12,7 @@ RUN R -e "install.packages(c('tidygraph', 'ggforce', 'ggraph'), Ncpus=parallel::
 
 # install orgsurveyr
 COPY . /orgsurveyr
-RUN R CMD INSTALL /orgsurveyr && \
+RUN R -e "devtools::install('/orgsurveyr', dependencies=FALSE, upgrade_dependencies=FALSE, build_vignettes=TRUE)"  && \
 	rm -rf /orgsurveyr
 
 #configure shiny server
