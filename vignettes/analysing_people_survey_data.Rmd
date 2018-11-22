@@ -1,0 +1,72 @@
+---
+title: "Analysing People Survey Data With The orgsurveyr Package"
+author: "Phil Chapman"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Analysing People Survey Data With The orgsurveyr Package}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+library(dplyr, quietly = TRUE)
+library(ggplot2, quietly = TRUE)
+library(orgsurveyr, quietly = TRUE)
+
+```
+
+# Introduction
+
+This vignette describes how the `orgsurveyr` package can be used to analyse data from the UK Civil Service People Survey.  Note that because the People Survey data for government departments is not in the public domain, it is not possible to provide a fully reproducible analysis. However, the code included here was used to analyse real data and can be used to understand the analysis as a general recipe.
+
+# Loading the data
+
+The following data files are provided (MSW = [Ministry of Silly Walks](https://www.youtube.com/watch?v=iV2ViNJFZC8)):
+
+## `org2017_MSW.sav` 
+
+An SPSS file containing the individual level responses for questions and combined variables.  This file has one row per individual and one column per variable.
+
+## `org2017_MSW_hierarchy.sav`
+
+As SPSS file containing one row per organisational unit that an individual is a member of.  For example, all individuals will have an entry for MSW0000 which is the department code for the Ministry of Silly Walks.  If this Ministry has an HR department, and a recruiting team within that, then an individual within this team would have 3 rows in this file:
+
+```{r echo=FALSE}
+df_org <- data_frame(ResponseID = rep(123456,3),
+                     DeptCode = c('MSW0000', 'MSW1234', 'MSW1235'),
+                     OUCode = rep(4,3),
+                     Returns = c(1234, 123, 12),
+                     Population = c(1345, 123, 13))
+df_org
+```
+
+## `Hierarchy Survey.xlsx`
+
+An MS Excel file containing information about the organisational units within the department, with one row per organisational unit.  Taking the Ministry of Silly Walks as our example, it might look like this:
+
+```{r echo=FALSE}
+df_depts <- data_frame(DeptCode = c('MSW0000', 'MSW1234', 'MSW1235'),
+                       Tier = 2:4,
+                       Parent = c('MSW', 'MSW0000', 'MSW1234'),
+                       UnitName = c('Ministry of Silly Walks', 'MSW Human Resources', 'MSW HR Recruiting Team'))
+df_depts
+
+```
+
+The key information in this file is the link between a department and its parent since this lets us represent the Ministry as a network.
+
+## `Core_Comments_Report_2017_MSW0000_with_IDs.xls`
+
+An MS Excel file with one row per individual, and with each column representing a different free text field from the Survey.
+
+# Session Info
+
+```{r}
+sessionInfo()
+```
+
