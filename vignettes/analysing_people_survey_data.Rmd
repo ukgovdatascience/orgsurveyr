@@ -2,7 +2,11 @@
 title: "Analysing People Survey Data With The orgsurveyr Package"
 author: "Phil Chapman"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette:
+    number_sections: yes
+    toc: yes
+    toc_depth: 3
 vignette: >
   %\VignetteIndexEntry{Analysing People Survey Data With The orgsurveyr Package}
   %\VignetteEngine{knitr::rmarkdown}
@@ -261,6 +265,179 @@ To generate an interactive visualisation call the `orgviz` function to launch a 
 orgviz(tg=tidy_org, df=org_summary_all)
 ```
 
+# Natural Language Processing
+
+## Introduction
+
+In addition to numeric survey responses, the People Survey also includes free text.  This can be analysed in a number of different ways to turn it into numeric data which can then be analysed in `orgsurveyr`.  The simplest analysis would be to calculate the term or bigram frequency for terms of interest, but here Topic Modelling using the [`stm`](http://structuraltopicmodel.com) package is exemplified as a way to extract useful insight from text data.  The approach was inspired by [this blog by Julia Silge](https://juliasilge.com/blog/sherlock-holmes-stm/) and her excellent book: [Text Mining With R, A Tidy Approach](https://www.tidytextmining.com).
+
+## Prepare data for NLP
+
+### Clean data
+
+Make sure that field names are correct:
+
+```{r eval=FALSE}
+comments <- comments_core %>% 
+  dplyr::transmute(ResponseID=`Response ID`, Comment)
+```
+
+### Tokenise and remove stopwords
+
+Tidy the comments using the tidytext 'bag of words' approach by tokenising and then removing stopwords with an anti-join.  
+
+```{r tokenise, eval=FALSE}
+tidy_comments <- comments %>%
+  unnest_tokens(sentence, Comment, token='sentences') %>%
+  mutate(sid=dplyr::row_number(ResponseID)) %>%
+  unnest_tokens(word, sentence) %>%
+  anti_join(stop_words)
+```
+
+### Examine the number of words extracted
+
+We can count the number of words present following tokenisation:
+
+```{r eval=FALSE}
+tidy_comments %>%
+  count(word, sort=TRUE)
+```
+
+Then extract the top 1000 most common words to be used in the analysis:
+
+```{r eval=FALSE}
+common_words <- tidy_comments %>%
+  count(word, sort=TRUE) %>%
+  top_n(1000, n) %>% dplyr::select(-n)
+```
+
+### Create a document frequency matrix
+
+The tidy comments data frame can be converted into document frequency matrix using the `tidytext::cast_dfm` function.  The object type is a `dfm` object from the `quanteda` package.  In this analysis we generate the document frequency matrix at the comment level, but an alternative is to generate the matrix at the sentence level instead.
+
+```{r eval=FALSE}
+comments_dfm <- tidy_comments %>%
+  dplyr::inner_join(common_words) %>%
+  dplyr::count(ResponseID, word) %>%
+  dplyr::arrange(ResponseID) %>%
+  tidytext::cast_dfm(ResponseID, word, n) 
+```
+
+### Make a metadata dataframe
+
+One of the interesting features of Structure Topic Models is that covariates can be included in the model directly.  In this example we only include the ResponseID and original comment in the metadata data frame.  Importantly the rownames of the metadata dataframe must be the document id (ie response id in this case).
+
+```{r eval=FALSE}
+comments_dfm_meta <- comments %>%
+  dplyr::filter(ResponseID %in% docnames(comments_dfm)) %>%
+  dplyr::arrange(ResponseID) %>%
+  as.data.frame() 
+rownames(comments_dfm_meta) <- comments_dfm_meta$ResponseID
+```
+
+### Make an stm object
+
+Create an stm Corpus object since some functions in `stm` require this rather than data frames.
+
+```{r eval=FALSE}
+comments_stmc <- asSTMCorpus(comments_dfm, data=comments_dfm_meta)
+
+```
+
+## Topic Modelling
+
+### Identify optimal value of K
+
+Here we fit the model with 16 topics, see the `stm::searchK` function for more information on optimising the number of clusters.
+
+### Fit the topic model
+
+Use the `stm` package to fit a topic model.  We don't include any covariates here, but these could be set with the `prevalence` parameter.
+
+```{r fit-model, eval=FALSE}
+topic_model <- stm(comments_dfm, 
+   K=16, 
+   data=comments_dfm_meta, 
+   max.em.its = 20,
+   verbose=FALSE)
+```
+
+Generate a summary of the topic model.  For each topic, the top words according to four different metrics are generated.  Top probability is just the most common words, the other metrics use different forms of weighting to pick up words that are more exclusive to the topic.  See the stm vignette for more information on the metrics.  
+
+```{r eval=FALSE}
+summary(topic_model)
+```
+
+## Preparing Topic Modelling Results For orgsurveyr
+
+### Aims
+
+In topic modelling, we seek to assign topic proportions (gamma coefficients) to each document.  To turn the topics into a metric that is associated with each individual, we therefore have to map the individual id to the topic id.  In orgsurveyr parlance, each topic is a metric and the topic proportion for each individual is the value that we will seek to plot.  What we are aiming to achieve is a data frame in the `indiv_tall_df` where each 'metric' is a topic, and each value is the gamma coefficient for that topic for a given individual:
+
+```{r}
+tg_org_indiv_tall_df
+```
+
+### Map responses to dfm document id
+
+When we created the document frequency object, the link between the original ResponseID and each piece of text is lost and is instead maintained through the row identifier.  We therefore need to create a link between each document and each ResponseID:
+
+```{r eval=FALSE}
+stm_responses <- comments_stmc$data %>%
+  as_tibble() %>%
+  tibble::rowid_to_column('document') %>%
+  transmute(document, ResponseID)
+```
+
+### Create topic labels
+
+Similarly to the individual id, each topic is identified by a numeric id.  We can create labels for these using the `labelTopics` function:
+
+```{r eval=FALSE}
+stm_labels <- labelTopics(topic_model, n=3)$frex %>% 
+  as_tibble() %>%
+  tibble::rowid_to_column('topic') %>%
+  transmute(topic, topic_name=paste('t', topic, V1, V2, V3, sep='_'))
+stm_labels
+```
+
+Note that there are limitations around the format of the topic names, ie don't include special characters or include numbers at the start of the topic.  This issue will be resolved in future versions of orgsurveyr (0.6.0 at time of writing).
+
+### Extract the topic proportions from the topic model
+
+The `tidytext` package includes a `tidy` function which can extract components of the topic model object from the `stm` package (see `?tidytext::stm_tidiers`).  For example:
+
+```{r eval=FALSE}
+tidytext::tidy(topic_model, matrix='gamma')
+```
+
+For each document, the topic proportion for each topic is returned.  We can join the document and topic identifiers with the data frames we generated earlier with topic labels and individual identifiers to give us a data frame in the `indiv_tall_df` format of `orgsurveyr`:
+
+```{r eval=FALSE}
+stm_metrics <- tidy(topic_model, matrix='gamma') %>%
+  inner_join(stm_responses, by='document') %>%
+  inner_join(stm_labels, by='topic') %>%
+  transmute(individual_id=ResponseID, metric_id=topic_name, value=gamma)
+```
+
+Double check that the data frame is in the correct format:
+
+```{r eval=FALSE}
+get_df_format(stm_metrics)
+
+```
+
+## Analysis with `orgsurveyr`
+
+Once the data frame in `indiv_tall_df` format is created, it can be analysed in `orgsurveyr` using the approaches described in this and other vignettes.  Usefully, the data frame from the survey data and NLP data can be combined using the `dplyr::bind_rows` function:
+
+```{r eval=FALSE}
+combined_df <- dplyr::bind_rows(df_metrics, stm_metrics)
+```
+
+# Conclusion
+
+This vignette contains example code for transforming Civil Service People Survey numerical and text data into the data formats required by `orgsurveyr`.  This is accomplished using a relatively standard tidyverse workflow.  Note that this does not represent the only way in which this data reformatting could be done, data could be transformed with other packages or even outside of R entirely, the `orgsurveyr` package's requirements are just that the data is formated in a particular way, how this is done is left open to the user.
 
 # Session Info
 
