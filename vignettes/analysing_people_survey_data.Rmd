@@ -26,13 +26,15 @@ This vignette describes how the `orgsurveyr` package can be used to analyse data
 
 # Loading the data
 
+## Raw data files
+
 The following data files are provided (MSW = [Ministry of Silly Walks](https://www.youtube.com/watch?v=iV2ViNJFZC8)):
 
-## `org2017_MSW.sav` 
+### `org2017_MSW.sav` 
 
 An SPSS file containing the individual level responses for questions and combined variables.  This file has one row per individual and one column per variable.
 
-## `org2017_MSW_hierarchy.sav`
+### `org2017_MSW_hierarchy.sav`
 
 As SPSS file containing one row per organisational unit that an individual is a member of.  For example, all individuals will have an entry for MSW0000 which is the department code for the Ministry of Silly Walks.  If this Ministry has an HR department, and a recruiting team within that, then an individual within this team would have 3 rows in this file:
 
@@ -45,7 +47,7 @@ df_org <- data_frame(ResponseID = rep(123456,3),
 df_org
 ```
 
-## `Hierarchy Survey.xlsx`
+### `Hierarchy Survey.xlsx`
 
 An MS Excel file containing information about the organisational units within the department, with one row per organisational unit.  Taking the Ministry of Silly Walks as our example, it might look like this:
 
@@ -60,9 +62,35 @@ df_depts
 
 The key information in this file is the link between a department and its parent since this lets us represent the Ministry as a network.
 
-## `Core_Comments_Report_2017_MSW0000_with_IDs.xls`
+### `Core_Comments_Report_2017_MSW0000_with_IDs.xls`
 
 An MS Excel file with one row per individual, and with each column representing a different free text field from the Survey.
+
+## Data import
+
+Data can be imported using the `haven` and `readxl` R packages.  For example:
+
+```{r eval=FALSE}
+datapath <- 'path/to/files'
+df_survey <- haven::read_sav(file.path(datapath, 'org2017_MSW.sav'))
+df_depts <- readxl::read_excel(file.path(datapath, 'Hierarchy Survey.xlsx'), 
+                               col_names = c('DeptCode', 'Tier', 'Parent', 'UnitName'), skip = 1)
+```
+
+## Data cleaning
+
+It is worth explicitly typing the imported data to avoid problems further along the line, especially from SPSS files:
+
+```{r eval=FALSE}
+df_org <- df_org %>%
+  mutate_at(vars(OUCode, Returns, Population), as.integer) %>%
+  mutate_at(vars(ResponseID, DeptCode), as.character)
+
+df_depts <- df_depts %>%
+  mutate_at(vars(Tier), as.integer) %>%
+  mutate_at(vars(-Tier), as.character)
+
+```
 
 # Session Info
 
