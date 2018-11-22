@@ -92,6 +92,124 @@ df_depts <- df_depts %>%
 
 ```
 
+# Data preparation
+
+## Introduction
+
+Now that the data has been loaded into R, the next step is to reformat it into one of the data formats required by the `orgsurveyr` package.  This can be accomplished using a fairly standard 'tidyverse' workflow.  To read more about the tidyverse suite of R packages the [tidyverse website](https://www.tidyverse.org) is very useful.  There are also a number of DataCamp courses (some of which are free) which are worth following to get quickly up to speed.
+
+To read more about the data formats used in the `orgsurveyr` package see [orgsurveyr-data-formats](../html/orgsurveyr-data-formats.html).
+
+## Individual responses data
+
+First define the numeric values in the survey that we are interested in:
+
+```{r eval=FALSE}
+metric_colnames <- c('ees', 'mw_p', 'op_p', 'lm_p', 'mt_p',
+                     'ld_p', 'if_p', 'rw_p', 'pb_p', 'lc_p',
+                     'eef', 'f1_mw', 'f2_op')
+```
+
+Next we select just these columns from the survey data, make them numeric, and un-pivot using the `tidyr::gather` function to make a long/skinny dataframe with one row per metric/individual combination.
+
+```{r eval=FALSE}
+df_metrics <- df_survey %>%
+  dplyr::select(ResponseID, metric_colnames) %>%
+  dplyr::mutate_at(vars(metric_colnames), as.numeric) %>%
+  dplyr::mutate_at(vars(ResponseID), as.character) %>%
+  dplyr::rename(individual_id = ResponseID) %>%
+  tidyr::gather( 'metric_id', 'value', -individual_id) 
+```
+
+This is the `indiv_tall_df` format that the `orgsurveyr` package requires.  It is an example of a tidy data frame since each row represents one observation per individual/metric combination.  It is extensible no matter how many individuals or metrics are considered since there are only three columns.  The example data for this format is below:
+
+```{r}
+tg_org_indiv_tall_df
+```
+
+We can also use the `get_df_format` function to confirm this:
+
+```{r eval=FALSE}
+get_df_format(tg_org_indiv_tall_df)
+get_df_format(df_metrics)
+```
+
+## Mapping individual to organisational unit
+
+In this section we want to generate an individual to organisational unit mapping data frame.  The data format is very simple, and is represented in the example below:
+
+```{r}
+tg_org_indiv_minimal_df
+```
+
+This is the `indiv_df` format that the `orgsurveyr` package requires where each individual is represented by a single row in the data frame.  However, the People Survey data doesn't come in this form directly so we have to convert it, this is done below.
+
+First we join the organisational unit level information in `df_depts` with the individual to organisational unit mapping in`df_org`.
+
+```{r eval=FALSE}
+df_org_depts <- df_org %>%
+  dplyr::select(ResponseID, DeptCode) %>%
+  dplyr::inner_join(df_depts, 'DeptCode') %>%
+  dplyr::select(-UnitName) %>%
+  dplyr::arrange(ResponseID, desc(Tier))
+```
+
+This lists all organisational units in the heirarchy which an individual is a member of.  So next we order by Tier and select the highest value - ie the deepest level in the organisation to which the individual is associated.  This can be regarded as the individual's parent organisational unit.
+
+```{r eval=FALSE}
+df_indiv_dept <- df_org_depts %>%
+  dplyr::group_by(ResponseID) %>%
+  dplyr::mutate(Tier_zero_indexed = dplyr::row_number(desc(Tier))) %>%
+  dplyr::ungroup() %>%
+  dplyr::filter(Tier_zero_indexed == 1) %>%
+  dplyr::transmute(individual_id=ResponseID, unit_id=DeptCode)
+
+```
+
+We can use the `get_df_format` function to confirm that the data is in the correct format:
+
+```{r eval=FALSE}
+get_df_format(tg_org_indiv_minimal_df)
+get_df_format(df_indiv_dept)
+```
+
+## Organisational structure
+
+The organisation is represented as a network, and the data object is a `tbl_graph` from the [`tidygraph`](https://CRAN.R-project.org/package=tidygraph) package.  This can be created from two data frames, one representing the nodes (organisational units) and the other representing the edges (line management relationship of each organisational unit).  Firstly, to create the nodes data frame we slightly modify the `df_depts` data frame by adding a `unit_id` column and `name` column which are required for later operations:
+
+```{r eval=FALSE}
+nodes_depts <- df_depts %>%
+  transmute(name=DeptCode, unit_id=DeptCode, DeptCode, Parent, Tier, UnitName,
+            DisplayName=paste0(DeptCode, ': ', UnitName))
+```
+
+Next we can adapt this to make the nodes data frame by removing the root node and changing the column names to `to` and `from`:
+
+```{r eval=FALSE}
+edges_depts <- nodes_depts %>%
+  dplyr::filter(DeptCode != 'MSW0000') %>%
+  transmute(from=Parent,to=DeptCode)
+edges_depts
+```
+
+
+Now these two data frames can be combined and converted into a `tbl_graph` object using the `igraph::graph_from_data_frame` and `tidygraph::as_tbl_graph` functions:
+
+```{r eval=FALSE}
+tidy_org <- igraph::graph_from_data_frame(
+  edges_depts,
+  directed=TRUE,
+  vertices=nodes_depts) %>%
+  tidygraph::as_tbl_graph()
+tidy_org
+```
+
+Finally check that the `tbl_graph` object has been created correctly:
+
+```{r eval=FALSE}
+check_tbl_graph_is_org(tidy_org)
+```
+
 # Session Info
 
 ```{r}
