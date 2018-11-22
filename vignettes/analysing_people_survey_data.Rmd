@@ -210,6 +210,58 @@ Finally check that the `tbl_graph` object has been created correctly:
 check_tbl_graph_is_org(tidy_org)
 ```
 
+# Data Exploration With orgsurveyr
+
+## Generate summary data
+
+With the data in the correct format, we can use the `calc_summary_function` to calculate organisational unit level summaries for the People Survey data.  Below we do this for `ees` - the Employee Engagement Score:
+
+```{r eval=FALSE}
+org_summary_ees <- calc_summary_df(tidy_org, df=df_indiv_dept, tall_df=df_metrics, selected_vars = 'ees', is_cumulative = TRUE)
+```
+This output data frame is in the `org_tall_df` format which has one row per organisational unit/metric combination:
+
+```{r}
+tg_org_summarised_df
+```
+
+Here we have generated cumulative metrics - ie where individuals from all organisation units in the current one and its children are included.  To generate non-cumulative metrics the `is_cumulative` parameter can be set to `FALSE`.
+
+It is also possible to calculate all metrics at once as follows:
+
+```{r eval=FALSE}
+org_summary_all <- calc_summary_df(tidy_org, df=df_indiv_dept, tall_df=df_metrics, selected_vars = metric_colnames, is_cumulative = TRUE)
+```
+
+## Explore summary data
+
+To find the organisational units with the highest engagement scores:
+
+```{r eval=FALSE}
+org_summary_all %>%
+  dplyr::filter(metric_id == 'ees') %>%
+  dplyr::arrange(desc(value)) %>%
+  dplyr::top_n(n = 10)
+```
+
+## Visualise summary scores
+
+The entire organisation can be visualised as a starburst plot as follows:
+
+```{r eval=FALSE}
+plot_org(tidy_org, fill='ees', df=org_summary_all, is_circular = TRUE, is_dendrogram = FALSE) +
+  scale_fill_gradientn(colours=RColorBrewer::brewer.pal(11, 'PiYG'))
+```
+
+## Interactive visualisation of summary scores
+
+To generate an interactive visualisation call the `orgviz` function to launch a shiny app:
+
+```{r eval=FALSE}
+orgviz(tg=tidy_org, df=org_summary_all)
+```
+
+
 # Session Info
 
 ```{r}
