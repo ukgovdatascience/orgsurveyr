@@ -151,6 +151,27 @@ plot_org(tg3, fill_var = 'test_var', summary_df)
 
 ![](man/figures/README-example-7-1.png)
 
+Larger organisations can be represented as starburst plots:
+
+``` r
+set.seed(1236)
+tg4 <- create_realistic_org(5,5, prob=0.3) %>%
+  simulate_unit_size()
+
+tg4_individuals_df <- tg4 %>%
+  simulate_individuals_df() %>%
+  mutate(test_var2 = purrr::map_dbl(individual_id, ~rnorm(1, 20,3)))
+
+tg4_summary_df <- calc_summary_df(tg=tg4, df=tg4_individuals_df, 
+                              selected_vars=c('test_var', 'test_var2'), is_cumulative=TRUE)
+#> Using wide data frame format for individual variables
+
+plot_org(tg4, fill_var = 'test_var', df = tg4_summary_df, is_circular = TRUE, is_dendrogram = FALSE) +
+  scale_fill_gradientn(colours=RColorBrewer::brewer.pal(11, 'PiYG'))
+```
+
+![](man/figures/README-example-large-org-1.png)
+
 An interactive visualisation in shiny can be launched:
 
 ``` r
