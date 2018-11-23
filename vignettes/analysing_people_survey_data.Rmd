@@ -32,7 +32,7 @@ This vignette describes how the `orgsurveyr` package can be used to analyse data
 
 ## Raw data files
 
-The following data files are provided (MSW = [Ministry of Silly Walks](https://www.youtube.com/watch?v=iV2ViNJFZC8)):
+The following data files are the start point for the people survey.  In this example, data for the [Ministry of Silly Walks](https://www.youtube.com/watch?v=iV2ViNJFZC8) is provided:
 
 ### `org2017_MSW.sav` 
 
@@ -100,7 +100,7 @@ df_depts <- df_depts %>%
 
 ## Introduction
 
-Now that the data has been loaded into R, the next step is to reformat it into one of the data formats required by the `orgsurveyr` package.  This can be accomplished using a fairly standard 'tidyverse' workflow.  To read more about the tidyverse suite of R packages the [tidyverse website](https://www.tidyverse.org) is very useful.  There are also a number of DataCamp courses (some of which are free) which are worth following to get quickly up to speed.
+Now that the data has been loaded into R, the next step is to reformat it into one of the data formats required by the `orgsurveyr` package.  This can be accomplished using a fairly standard 'tidyverse' workflow.  To read more about the tidyverse suite of R packages the [tidyverse website](https://www.tidyverse.org) is very useful.  There are also a number of DataCamp courses (some of which are free) which are worth following to get quickly up to speed, for example [Introduction to the Tidyverse](https://www.datacamp.com/courses/introduction-to-the-tidyverse).
 
 To read more about the data formats used in the `orgsurveyr` package see [orgsurveyr-data-formats](../html/orgsurveyr-data-formats.html).
 
