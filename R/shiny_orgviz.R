@@ -39,7 +39,7 @@ orgviz_ui <- function() {
 
       # Show a plot of the generated distribution
       mainPanel(
-        verbatimTextOutput('clickedinfo'),
+        tableOutput('clickedinfo'),
         plotOutput("plot", click = "plot_click", hover = "plot_hover",
                    width='700px', height='600px'),
         verbatimTextOutput('pointinfo')
@@ -154,12 +154,11 @@ orgviz_server <- function(input, output, tg=NULL, df=NULL) {
     }
   })
 
-  output$clickedinfo <- renderPrint({
+  output$clickedinfo <- renderTable({
     tg %>%
       tidygraph::activate(nodes) %>%
       tidygraph::as_tibble() %>%
-      dplyr::filter(unit_id == values$selected_node) %>%
-      unlist()
+      dplyr::filter(unit_id == values$selected_node)
   })
 
   output$var_ui <- renderUI({
