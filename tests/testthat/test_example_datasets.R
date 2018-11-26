@@ -15,7 +15,7 @@ test_that("example dataset tg_org has been generated as expected", {
   #tg_org
   expect_is(tg_org, 'tbl_graph')
   expect_equal(dim(tg_org_nodes), c(38,4))
-  expect_equal(colnames(tg_org_nodes), c("unit_id", "depth", "is_leaf", "unit_size"))
+  expect_equal(colnames(tg_org_nodes), c("unit_id", "org_depth", "is_leaf", "unit_size"))
 
 })
 

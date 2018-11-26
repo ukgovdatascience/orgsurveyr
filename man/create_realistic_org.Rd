@@ -35,7 +35,7 @@ tg1a <- create_realistic_org(4,3, prob=0.3)
 tg1a
 
 \dontrun{
-plot_org(tg1a, fill_var='depth')
+plot_org(tg1a, fill_var='org_depth')
 }
 
 set.seed(1234)
@@ -50,7 +50,7 @@ set.seed(1234)
 tg2a <- create_realistic_org(4,3, prob=c(0.2, 0.4, 0.6))
 tg2a
 \dontrun{
-plot_org(tg2a, fill_var='depth')
+plot_org(tg2a, fill_var='org_depth')
 }
 
 set.seed(1234)

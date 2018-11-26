@@ -23,7 +23,7 @@
 #' tg1a
 #'
 #' \dontrun{
-#' plot_org(tg1a, fill_var='depth')
+#' plot_org(tg1a, fill_var='org_depth')
 #' }
 #'
 #' set.seed(1234)
@@ -38,7 +38,7 @@
 #' tg2a <- create_realistic_org(4,3, prob=c(0.2, 0.4, 0.6))
 #' tg2a
 #' \dontrun{
-#' plot_org(tg2a, fill_var='depth')
+#' plot_org(tg2a, fill_var='org_depth')
 #' }
 #'
 #' set.seed(1234)
@@ -58,18 +58,18 @@ create_realistic_org <- function(n_children = 4, max_depth = 3, prob=0.3, .f=NUL
   stopifnot(is.logical(delete_units))
 
   if (length(prob) == 1 & is.null(.f)) {
-    prob_df <- tibble::data_frame(depth=0:max_depth, prob_deletion=prob)
+    prob_df <- tibble::data_frame(org_depth=0:max_depth, prob_deletion=prob)
   } else if (length(prob) == max_depth & is.null(.f)) {
-    prob_df <- tibble::data_frame(depth=0:max_depth, prob_deletion=c(0,prob))
+    prob_df <- tibble::data_frame(org_depth=0:max_depth, prob_deletion=c(0,prob))
   } else if (is.function(.f)) {
-    prob_df <- tibble::data_frame(depth=0:max_depth) %>%
-      dplyr::mutate(prob_deletion = .f(depth))
+    prob_df <- tibble::data_frame(org_depth=0:max_depth) %>%
+      dplyr::mutate(prob_deletion = .f(org_depth))
   }
 
   out <- create_regular_org(n_children, max_depth) %>%
     tidygraph::mutate(unit_id = dplyr::row_number() %>% as.character(),
-                      depth = tidygraph::bfs_dist(1)) %>%
-    tidygraph::inner_join(prob_df, by='depth') %>%
+                      org_depth = tidygraph::bfs_dist(1)) %>%
+    tidygraph::inner_join(prob_df, by='org_depth') %>%
     tidygraph::mutate(branch_delete = stats::rbinom(nrow(tidygraph::.N()), 1, prob_deletion),
                       to_delete = tidygraph::map_bfs_dbl(1, .f = function(node, path, ...) {
                         max(tidygraph::.N()[c(node, path$node),]$branch_delete)
@@ -78,7 +78,7 @@ create_realistic_org <- function(n_children = 4, max_depth = 3, prob=0.3, .f=NUL
   if (delete_units) {
     out <- out %>%
       tidygraph::filter(to_delete == 0) %>%
-      tidygraph::select(unit_id, depth)
+      tidygraph::select(unit_id, org_depth)
   }
 
   #check that the node count is not zero

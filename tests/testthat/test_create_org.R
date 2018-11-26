@@ -38,8 +38,8 @@ test_that("create_realistic_org generates expected output", {
   expect_equal(real_tg1 %>% activate(nodes) %>% as_tibble() %>% nrow(), 45)
   # number of columns in nodes table
   expect_equal(real_tg1 %>% activate(nodes) %>% as_tibble() %>% ncol(), 2)
-  # number of nodes in a given depth
-  expect_equal(real_tg1 %>% filter(depth>=2) %>% activate(nodes) %>% as_tibble() %>% nrow(), 41)
+  # number of nodes in a given org_depth
+  expect_equal(real_tg1 %>% filter(org_depth>=2) %>% activate(nodes) %>% as_tibble() %>% nrow(), 41)
 
 
   set.seed(1235)
@@ -52,7 +52,7 @@ test_that("create_realistic_org generates expected output", {
   # number of columns in nodes table
   expect_equal(real_tg2 %>% activate(nodes) %>% as_tibble() %>% ncol(), 5)
   # number of nodes in a given depth
-  expect_equal(real_tg2 %>% filter(depth>=2) %>% activate(nodes) %>% as_tibble() %>% nrow(), 150)
+  expect_equal(real_tg2 %>% filter(org_depth>=2) %>% activate(nodes) %>% as_tibble() %>% nrow(), 150)
 
 
   set.seed(1235)
@@ -64,8 +64,8 @@ test_that("create_realistic_org generates expected output", {
   expect_equal(real_tg3 %>% activate(nodes) %>% as_tibble() %>% nrow(), 47)
   # number of columns in nodes table
   expect_equal(real_tg3 %>% activate(nodes) %>% as_tibble() %>% ncol(), 2)
-  # number of nodes in a given depth
-  expect_equal(real_tg3 %>% filter(depth>=2) %>% activate(nodes) %>% as_tibble() %>% nrow(), 43)
+  # number of nodes in a given org_depth
+  expect_equal(real_tg3 %>% filter(org_depth>=2) %>% activate(nodes) %>% as_tibble() %>% nrow(), 43)
 
 
 })
