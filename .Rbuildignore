@@ -5,3 +5,5 @@
 ^orgsurveyr.sublime*
 ^data-raw$
 ^\.travis\.yml$
+^Makefile
+^docker$

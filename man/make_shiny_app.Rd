@@ -4,9 +4,11 @@
 \alias{make_shiny_app}
 \title{Create an example shiny app}
 \usage{
-make_shiny_app(path = "~")
+make_shiny_app(app = "test_viz", path = "~")
 }
 \arguments{
+\item{app}{Name of app: test_viz or orgviz.  Defaults to test_viz.}
+
 \item{path}{Location where the file should be created. Defaults to the user's home directory}
 }
 \value{
@@ -19,7 +21,7 @@ shiny apps with different configurations for deployment on a shiny server.
 \examples{
 \dontrun{
 # create the example shiny app
-make_shiny_app()
+make_shiny_app(app='test_viz')
 
 # then edit and copy to the correct location
 mv ~/example_shiny_app.R ~/ShinyApps/my_app/app.R

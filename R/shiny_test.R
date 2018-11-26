@@ -1,11 +1,21 @@
-#' Test visualisation UI
+#' Testviz shiny UI
+#'
+#' Creates a shiny UI object for the test_viz shiny app
 #'
 #' @return shiny ui object
 #' @import shiny
 #' @export
 #'
 #' @examples
-#' NULL
+#' \dontrun{
+#' library(shiny)
+#'
+#' shinyApp(ui = test_viz_ui(),
+#'         server = function(input, output) {
+#'           test_viz_server(input, output)
+#'         }
+#' )
+#' }
 test_viz_ui <- function() {
 
   fluidPage(
@@ -34,7 +44,9 @@ test_viz_ui <- function() {
 
 }
 
-#' Test visualisation server
+#' Testviz shiny server
+#'
+#' Creates a shiny server object for the test_viz shiny app
 #'
 #' @param input shiny input
 #' @param output shiny output
@@ -43,7 +55,15 @@ test_viz_ui <- function() {
 #' @export
 #'
 #' @examples
-#' NULL
+#' \dontrun{
+#' library(shiny)
+#'
+#' shinyApp(ui = test_viz_ui(),
+#'         server = function(input, output) {
+#'           test_viz_server(input, output)
+#'         }
+#' )
+#' }
 test_viz_server <- function(input, output) {
 
   values <- reactiveValues(tg_seed=10001)
@@ -88,14 +108,23 @@ test_viz_server <- function(input, output) {
   })
 }
 
-#' Test visualisation shiny app
+#' Testviz shiny app
+#'
+#' Convenience function to run the test_viz shiny app within an R session.
+#'
+#' The test_viz shiny app allows interactive simulation and visualisation of organisations of different shapes and
+#' sizes.
 #'
 #' @return runs a shiny app
 #' @export
 #' @import shiny
 #'
 #' @examples
-#' NULL
+#' \dontrun{
+#'
+#' test_viz()
+#'
+#' }
 test_viz <- function() {
   shinyApp(ui = test_viz_ui, server = test_viz_server)
 }

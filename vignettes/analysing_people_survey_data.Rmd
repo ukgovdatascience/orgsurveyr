@@ -1,0 +1,447 @@
+---
+title: "Analysing People Survey Data With The orgsurveyr Package"
+author: "Phil Chapman"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_vignette:
+    number_sections: yes
+    toc: yes
+    toc_depth: 3
+vignette: >
+  %\VignetteIndexEntry{Analysing People Survey Data With The orgsurveyr Package}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+library(dplyr, quietly = TRUE)
+library(ggplot2, quietly = TRUE)
+library(orgsurveyr, quietly = TRUE)
+
+```
+
+# Introduction
+
+This vignette describes how the `orgsurveyr` package can be used to analyse data from the UK Civil Service People Survey.  Note that because the People Survey data for government departments is not in the public domain, it is not possible to provide a fully reproducible analysis. However, the code included here was used to analyse real data and can be used to understand the analysis as a general recipe.
+
+# Loading the data
+
+## Raw data files
+
+The following data files are the start point for the people survey.  In this example, data for the [Ministry of Silly Walks](https://www.youtube.com/watch?v=iV2ViNJFZC8) is provided:
+
+### `org2017_MSW.sav` 
+
+An SPSS file containing the individual level responses for questions and combined variables.  This file has one row per individual and one column per variable.
+
+### `org2017_MSW_hierarchy.sav`
+
+As SPSS file containing one row per organisational unit that an individual is a member of.  For example, all individuals will have an entry for MSW0000 which is the department code for the Ministry of Silly Walks.  If this Ministry has an HR department, and a recruiting team within that, then an individual within this team would have 3 rows in this file:
+
+```{r echo=FALSE}
+df_org <- data_frame(ResponseID = rep(123456,3),
+                     DeptCode = c('MSW0000', 'MSW1234', 'MSW1235'),
+                     OUCode = rep(4,3),
+                     Returns = c(1234, 123, 12),
+                     Population = c(1345, 123, 13))
+df_org
+```
+
+### `Hierarchy Survey.xlsx`
+
+An MS Excel file containing information about the organisational units within the department, with one row per organisational unit.  Taking the Ministry of Silly Walks as our example, it might look like this:
+
+```{r echo=FALSE}
+df_depts <- data_frame(DeptCode = c('MSW0000', 'MSW1234', 'MSW1235'),
+                       Tier = 2:4,
+                       Parent = c('MSW', 'MSW0000', 'MSW1234'),
+                       UnitName = c('Ministry of Silly Walks', 'MSW Human Resources', 'MSW HR Recruiting Team'))
+df_depts
+
+```
+
+The key information in this file is the link between a department and its parent since this lets us represent the Ministry as a network.
+
+### `Core_Comments_Report_2017_MSW0000_with_IDs.xls`
+
+An MS Excel file with one row per individual, and with each column representing a different free text field from the Survey.
+
+## Data import
+
+Data can be imported using the `haven` and `readxl` R packages.  For example:
+
+```{r eval=FALSE}
+datapath <- 'path/to/files'
+df_survey <- haven::read_sav(file.path(datapath, 'org2017_MSW.sav'))
+df_depts <- readxl::read_excel(file.path(datapath, 'Hierarchy Survey.xlsx'), 
+                               col_names = c('DeptCode', 'Tier', 'Parent', 'UnitName'), skip = 1)
+```
+
+## Data cleaning
+
+It is worth explicitly typing the imported data to avoid problems further along the line, especially from SPSS files:
+
+```{r eval=FALSE}
+df_org <- df_org %>%
+  mutate_at(vars(OUCode, Returns, Population), as.integer) %>%
+  mutate_at(vars(ResponseID, DeptCode), as.character)
+
+df_depts <- df_depts %>%
+  mutate_at(vars(Tier), as.integer) %>%
+  mutate_at(vars(-Tier), as.character)
+
+```
+
+# Data preparation
+
+## Introduction
+
+Now that the data has been loaded into R, the next step is to reformat it into one of the data formats required by the `orgsurveyr` package.  This can be accomplished using a fairly standard 'tidyverse' workflow.  To read more about the tidyverse suite of R packages the [tidyverse website](https://www.tidyverse.org) is very useful.  There are also a number of DataCamp courses (some of which are free) which are worth following to get quickly up to speed, for example [Introduction to the Tidyverse](https://www.datacamp.com/courses/introduction-to-the-tidyverse).
+
+To read more about the data formats used in the `orgsurveyr` package see [orgsurveyr-data-formats](../html/orgsurveyr-data-formats.html).
+
+## Individual responses data
+
+First define the numeric values in the survey that we are interested in:
+
+```{r eval=FALSE}
+metric_colnames <- c('ees', 'mw_p', 'op_p', 'lm_p', 'mt_p',
+                     'ld_p', 'if_p', 'rw_p', 'pb_p', 'lc_p',
+                     'eef', 'f1_mw', 'f2_op')
+```
+
+Next we select just these columns from the survey data, make them numeric, and un-pivot using the `tidyr::gather` function to make a long/skinny dataframe with one row per metric/individual combination.
+
+```{r eval=FALSE}
+df_metrics <- df_survey %>%
+  dplyr::select(ResponseID, metric_colnames) %>%
+  dplyr::mutate_at(vars(metric_colnames), as.numeric) %>%
+  dplyr::mutate_at(vars(ResponseID), as.character) %>%
+  dplyr::rename(individual_id = ResponseID) %>%
+  tidyr::gather( 'metric_id', 'value', -individual_id) 
+```
+
+This is the `indiv_tall_df` format that the `orgsurveyr` package requires.  It is an example of a tidy data frame since each row represents one observation per individual/metric combination.  It is extensible no matter how many individuals or metrics are considered since there are only three columns.  The example data for this format is below:
+
+```{r}
+tg_org_indiv_tall_df
+```
+
+We can also use the `get_df_format` function to confirm this:
+
+```{r eval=FALSE}
+get_df_format(tg_org_indiv_tall_df)
+get_df_format(df_metrics)
+```
+
+## Mapping individual to organisational unit
+
+In this section we want to generate an individual to organisational unit mapping data frame.  The data format is very simple, and is represented in the example below:
+
+```{r}
+tg_org_indiv_minimal_df
+```
+
+This is the `indiv_df` format that the `orgsurveyr` package requires where each individual is represented by a single row in the data frame.  However, the People Survey data doesn't come in this form directly so we have to convert it, this is done below.
+
+First we join the organisational unit level information in `df_depts` with the individual to organisational unit mapping in`df_org`.
+
+```{r eval=FALSE}
+df_org_depts <- df_org %>%
+  dplyr::select(ResponseID, DeptCode) %>%
+  dplyr::inner_join(df_depts, 'DeptCode') %>%
+  dplyr::select(-UnitName) %>%
+  dplyr::arrange(ResponseID, desc(Tier))
+```
+
+This lists all organisational units in the heirarchy which an individual is a member of.  So next we order by Tier and select the highest value - ie the deepest level in the organisation to which the individual is associated.  This can be regarded as the individual's parent organisational unit.
+
+```{r eval=FALSE}
+df_indiv_dept <- df_org_depts %>%
+  dplyr::group_by(ResponseID) %>%
+  dplyr::mutate(Tier_zero_indexed = dplyr::row_number(desc(Tier))) %>%
+  dplyr::ungroup() %>%
+  dplyr::filter(Tier_zero_indexed == 1) %>%
+  dplyr::transmute(individual_id=ResponseID, unit_id=DeptCode)
+
+```
+
+We can use the `get_df_format` function to confirm that the data is in the correct format:
+
+```{r eval=FALSE}
+get_df_format(tg_org_indiv_minimal_df)
+get_df_format(df_indiv_dept)
+```
+
+## Organisational structure
+
+The organisation is represented as a network, and the data object is a `tbl_graph` from the [`tidygraph`](https://CRAN.R-project.org/package=tidygraph) package.  This can be created from two data frames, one representing the nodes (organisational units) and the other representing the edges (line management relationship of each organisational unit).  Firstly, to create the nodes data frame we slightly modify the `df_depts` data frame by adding a `unit_id` column and `name` column which are required for later operations:
+
+```{r eval=FALSE}
+nodes_depts <- df_depts %>%
+  transmute(name=DeptCode, unit_id=DeptCode, DeptCode, Parent, Tier, UnitName,
+            DisplayName=paste0(DeptCode, ': ', UnitName))
+```
+
+Next we can adapt this to make the nodes data frame by removing the root node and changing the column names to `to` and `from`:
+
+```{r eval=FALSE}
+edges_depts <- nodes_depts %>%
+  dplyr::filter(DeptCode != 'MSW0000') %>%
+  transmute(from=Parent,to=DeptCode)
+edges_depts
+```
+
+
+Now these two data frames can be combined and converted into a `tbl_graph` object using the `igraph::graph_from_data_frame` and `tidygraph::as_tbl_graph` functions:
+
+```{r eval=FALSE}
+tidy_org <- igraph::graph_from_data_frame(
+  edges_depts,
+  directed=TRUE,
+  vertices=nodes_depts) %>%
+  tidygraph::as_tbl_graph()
+tidy_org
+```
+
+Finally check that the `tbl_graph` object has been created correctly:
+
+```{r eval=FALSE}
+check_tbl_graph_is_org(tidy_org)
+```
+
+# Data Exploration With orgsurveyr
+
+## Generate summary data
+
+With the data in the correct format, we can use the `calc_summary_function` to calculate organisational unit level summaries for the People Survey data.  Below we do this for `ees` - the Employee Engagement Score:
+
+```{r eval=FALSE}
+org_summary_ees <- calc_summary_df(tidy_org, df=df_indiv_dept, tall_df=df_metrics, selected_vars = 'ees', is_cumulative = TRUE)
+```
+This output data frame is in the `org_tall_df` format which has one row per organisational unit/metric combination:
+
+```{r}
+tg_org_summarised_df
+```
+
+Here we have generated cumulative metrics - ie where individuals from all organisation units in the current one and its children are included.  To generate non-cumulative metrics the `is_cumulative` parameter can be set to `FALSE`.
+
+It is also possible to calculate all metrics at once as follows:
+
+```{r eval=FALSE}
+org_summary_all <- calc_summary_df(tidy_org, df=df_indiv_dept, tall_df=df_metrics, selected_vars = metric_colnames, is_cumulative = TRUE)
+```
+
+## Explore summary data
+
+To find the organisational units with the highest engagement scores:
+
+```{r eval=FALSE}
+org_summary_all %>%
+  dplyr::filter(metric_id == 'ees') %>%
+  dplyr::arrange(desc(value)) %>%
+  dplyr::top_n(n = 10)
+```
+
+## Visualise summary scores
+
+The entire organisation can be visualised as a starburst plot as follows:
+
+```{r eval=FALSE}
+plot_org(tidy_org, fill='ees', df=org_summary_all, is_circular = TRUE, is_dendrogram = FALSE) +
+  scale_fill_gradientn(colours=RColorBrewer::brewer.pal(11, 'PiYG'))
+```
+
+## Interactive visualisation of summary scores
+
+To generate an interactive visualisation call the `orgviz` function to launch a shiny app:
+
+```{r eval=FALSE}
+orgviz(tg=tidy_org, df=org_summary_all)
+```
+
+# Natural Language Processing
+
+## Introduction
+
+In addition to numeric survey responses, the People Survey also includes free text.  This can be analysed in a number of different ways to turn it into numeric data which can then be analysed in `orgsurveyr`.  The simplest analysis would be to calculate the term or bigram frequency for terms of interest, but here Topic Modelling using the [`stm`](http://structuraltopicmodel.com) package is exemplified as a way to extract useful insight from text data.  The approach was inspired by [this blog by Julia Silge](https://juliasilge.com/blog/sherlock-holmes-stm/) and her excellent book: [Text Mining With R, A Tidy Approach](https://www.tidytextmining.com).
+
+## Prepare data for NLP
+
+### Clean data
+
+Make sure that field names are correct:
+
+```{r eval=FALSE}
+comments <- comments_core %>% 
+  dplyr::transmute(ResponseID=`Response ID`, Comment)
+```
+
+### Tokenise and remove stopwords
+
+Tidy the comments using the tidytext 'bag of words' approach by tokenising and then removing stopwords with an anti-join.  
+
+```{r tokenise, eval=FALSE}
+tidy_comments <- comments %>%
+  unnest_tokens(sentence, Comment, token='sentences') %>%
+  mutate(sid=dplyr::row_number(ResponseID)) %>%
+  unnest_tokens(word, sentence) %>%
+  anti_join(stop_words)
+```
+
+### Examine the number of words extracted
+
+We can count the number of words present following tokenisation:
+
+```{r eval=FALSE}
+tidy_comments %>%
+  count(word, sort=TRUE)
+```
+
+Then extract the top 1000 most common words to be used in the analysis:
+
+```{r eval=FALSE}
+common_words <- tidy_comments %>%
+  count(word, sort=TRUE) %>%
+  top_n(1000, n) %>% dplyr::select(-n)
+```
+
+### Create a document frequency matrix
+
+The tidy comments data frame can be converted into document frequency matrix using the `tidytext::cast_dfm` function.  The object type is a `dfm` object from the `quanteda` package.  In this analysis we generate the document frequency matrix at the comment level, but an alternative is to generate the matrix at the sentence level instead.
+
+```{r eval=FALSE}
+comments_dfm <- tidy_comments %>%
+  dplyr::inner_join(common_words) %>%
+  dplyr::count(ResponseID, word) %>%
+  dplyr::arrange(ResponseID) %>%
+  tidytext::cast_dfm(ResponseID, word, n) 
+```
+
+### Make a metadata dataframe
+
+One of the interesting features of Structure Topic Models is that covariates can be included in the model directly.  In this example we only include the ResponseID and original comment in the metadata data frame.  Importantly the rownames of the metadata dataframe must be the document id (ie response id in this case).
+
+```{r eval=FALSE}
+comments_dfm_meta <- comments %>%
+  dplyr::filter(ResponseID %in% docnames(comments_dfm)) %>%
+  dplyr::arrange(ResponseID) %>%
+  as.data.frame() 
+rownames(comments_dfm_meta) <- comments_dfm_meta$ResponseID
+```
+
+### Make an stm object
+
+Create an stm Corpus object since some functions in `stm` require this rather than data frames.
+
+```{r eval=FALSE}
+comments_stmc <- asSTMCorpus(comments_dfm, data=comments_dfm_meta)
+
+```
+
+## Topic Modelling
+
+### Identify optimal value of K
+
+Here we fit the model with 16 topics, see the `stm::searchK` function for more information on optimising the number of clusters.
+
+### Fit the topic model
+
+Use the `stm` package to fit a topic model.  We don't include any covariates here, but these could be set with the `prevalence` parameter.
+
+```{r fit-model, eval=FALSE}
+topic_model <- stm(comments_dfm, 
+   K=16, 
+   data=comments_dfm_meta, 
+   max.em.its = 20,
+   verbose=FALSE)
+```
+
+Generate a summary of the topic model.  For each topic, the top words according to four different metrics are generated.  Top probability is just the most common words, the other metrics use different forms of weighting to pick up words that are more exclusive to the topic.  See the stm vignette for more information on the metrics.  
+
+```{r eval=FALSE}
+summary(topic_model)
+```
+
+## Preparing Topic Modelling Results For orgsurveyr
+
+### Aims
+
+In topic modelling, we seek to assign topic proportions (gamma coefficients) to each document.  To turn the topics into a metric that is associated with each individual, we therefore have to map the individual id to the topic id.  In orgsurveyr parlance, each topic is a metric and the topic proportion for each individual is the value that we will seek to plot.  What we are aiming to achieve is a data frame in the `indiv_tall_df` where each 'metric' is a topic, and each value is the gamma coefficient for that topic for a given individual:
+
+```{r}
+tg_org_indiv_tall_df
+```
+
+### Map responses to dfm document id
+
+When we created the document frequency object, the link between the original ResponseID and each piece of text is lost and is instead maintained through the row identifier.  We therefore need to create a link between each document and each ResponseID:
+
+```{r eval=FALSE}
+stm_responses <- comments_stmc$data %>%
+  as_tibble() %>%
+  tibble::rowid_to_column('document') %>%
+  transmute(document, ResponseID)
+```
+
+### Create topic labels
+
+Similarly to the individual id, each topic is identified by a numeric id.  We can create labels for these using the `labelTopics` function:
+
+```{r eval=FALSE}
+stm_labels <- labelTopics(topic_model, n=3)$frex %>% 
+  as_tibble() %>%
+  tibble::rowid_to_column('topic') %>%
+  transmute(topic, topic_name=paste('t', topic, V1, V2, V3, sep='_'))
+stm_labels
+```
+
+Note that there are limitations around the format of the topic names, ie don't include special characters or include numbers at the start of the topic.  This issue will be resolved in future versions of orgsurveyr (0.6.0 at time of writing).
+
+### Extract the topic proportions from the topic model
+
+The `tidytext` package includes a `tidy` function which can extract components of the topic model object from the `stm` package (see `?tidytext::stm_tidiers`).  For example:
+
+```{r eval=FALSE}
+tidytext::tidy(topic_model, matrix='gamma')
+```
+
+For each document, the topic proportion for each topic is returned.  We can join the document and topic identifiers with the data frames we generated earlier with topic labels and individual identifiers to give us a data frame in the `indiv_tall_df` format of `orgsurveyr`:
+
+```{r eval=FALSE}
+stm_metrics <- tidy(topic_model, matrix='gamma') %>%
+  inner_join(stm_responses, by='document') %>%
+  inner_join(stm_labels, by='topic') %>%
+  transmute(individual_id=ResponseID, metric_id=topic_name, value=gamma)
+```
+
+Double check that the data frame is in the correct format:
+
+```{r eval=FALSE}
+get_df_format(stm_metrics)
+
+```
+
+## Analysis with `orgsurveyr`
+
+Once the data frame in `indiv_tall_df` format is created, it can be analysed in `orgsurveyr` using the approaches described in this and other vignettes.  Usefully, the data frame from the survey data and NLP data can be combined using the `dplyr::bind_rows` function:
+
+```{r eval=FALSE}
+combined_df <- dplyr::bind_rows(df_metrics, stm_metrics)
+```
+
+# Conclusion
+
+This vignette contains example code for transforming Civil Service People Survey numerical and text data into the data formats required by `orgsurveyr`.  This is accomplished using a relatively standard tidyverse workflow.  Note that this does not represent the only way in which this data reformatting could be done, data could be transformed with other packages or even outside of R entirely, the `orgsurveyr` package's requirements are just that the data is formated in a particular way, how this is done is left open to the user.
+
+# Session Info
+
+```{r}
+sessionInfo()
+```
+
